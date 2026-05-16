@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Oridine — Redefining Air, Redefining Life</title>
+<style>
+:root {
+  --bg: #060912;
+  --bg2: #0b1120;
+  --surface: rgba(255,255,255,0.025);
+  --surface-hover: rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.06);
+  --border-hover: rgba(255,255,255,0.14);
+  --text: #eaeef4;
+  --text-dim: #7c8ba0;
+  --text-muted: #4a5568;
+  --cyan: #00d4f0;
+  --cyan-dim: #0098b0;
+  --blue: #3b82f6;
+  --gold: #c9a76b;
+  --gold-light: #e4d0a0;
+  --radius: 18px;
+  --radius-sm: 11px;
+  --radius-xs: 7px;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px;scrollbar-width:thin;scrollbar-color:var(--text-muted) transparent}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  cursor:none;
+}
+body.mobile{cursor:auto}
+body.mobile .custom-cursor{display:none}
+
+/* Custom Cursor */
+.custom-cursor{
+  position:fixed;z-index:9998;pointer-events:none;
+  width:12px;height:12px;border-radius:50%;
+  background:var(--cyan);mix-blend-mode:difference;
+  transform:translate(-50%,-50%);transition:width 0.3s,height 0.3s,background 0.3s;
+}
+.cursor-follower{
+  position:fixed;z-index:9997;pointer-events:none;
+  width:40px;height:40px;border-radius:50%;
+  border:1px solid rgba(255,255,255,0.3);
+  transform:translate(-50%,-50%);transition:0.15s ease-out;
+}
+.custom-cursor.hover{width:24px;height:24px;background:var(--gold);mix-blend-mode:normal}
+.cursor-follower.hover{width:60px;height:60px;border-color:var(--gold);background:rgba(201,167,107,0.1)}
+
+/* Grain overlay */
+.grain{
+  position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Preloader */
+#preloader{
+  position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity 0.5s var(--ease-out),visibility 0.5s var(--ease-out);
+}
+#preloader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+
+/* Ambient BG */
+.ambient-bg{position:fixed;inset:0;z-index:-1;background:radial-gradient(ellipse at 40% 30%,#0b1a2e 0%,#060912 50%,#04070d 100%)}
+.ambient-orb{position:absolute;border-radius:50%;filter:blur(140px);opacity:0.12;animation:orbFloat 24s ease-in-out infinite}
+.ambient-orb:nth-child(1){width:700px;height:700px;background:var(--cyan);top:-250px;left:-150px;animation-delay:0s}
+.ambient-orb:nth-child(2){width:550px;height:550px;background:var(--gold);bottom:-200px;right:-120px;animation-delay:-9s;animation-duration:28s}
+.ambient-orb:nth-child(3){width:450px;height:450px;background:var(--blue);top:55%;left:60%;animation-delay:-17s;animation-duration:20s;opacity:0.06}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(100px,-70px) scale(1.12)}50%{transform:translate(-50px,50px) scale(0.9)}75%{transform:translate(-80px,-40px) scale(1.06)}}
+
+/* Nav */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;padding:1.3rem 2.5rem;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:all 0.45s var(--ease-out);
+}
+.nav.scrolled{
+  background:rgba(6,9,18,0.82);backdrop-filter:blur(24px) saturate(160%);
+  -webkit-backdrop-filter:blur(24px) saturate(160%);
+  padding:0.75rem 2.5rem;border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-size:1.55rem;font-weight:800;letter-spacing:-0.04em;position:relative;z-index:102;
+  background:linear-gradient(135deg,var(--cyan) 0%,#60a5fa 60%,var(--cyan-dim) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.nav-links{display:flex;gap:2.8rem;list-style:none;align-items:center;position:relative;z-index:102}
+.nav-links a{
+  color:var(--text-dim);text-decoration:none;font-size:0.875rem;font-weight:500;
+  letter-spacing:0.03em;transition:color 0.35s;position:relative;padding:0.3rem 0;
+}
+.nav-links a:hover{color:var(--text)}
+.nav-links a::after{
+  content:'';position:absolute;bottom:0;left:0;width:0;height:1.5px;
+  background:var(--cyan);transition:width 0.35s var(--ease-out);
+}
+.nav-links a:hover::after{width:100%}
+.nav-cta{
+  padding:0.55rem 1.5rem;background:rgba(0,212,240,0.12);border:1px solid rgba(0,212,240,0.25);
+  border-radius:50px;color:var(--cyan);font-weight:600;font-size:0.825rem;cursor:pointer;
+  transition:all 0.35s var(--ease-out);position:relative;z-index:102;text-decoration:none;
+  letter-spacing:0.02em;
+}
+.nav-cta:hover{background:rgba(0,212,240,0.2);border-color:var(--cyan);box-shadow:0 0 30px rgba(0,212,240,0.15)}
+.hamburger{display:none;flex-direction:column;gap:4.5px;cursor:pointer;z-index:102;padding:0.5rem}
+.hamburger span{width:26px;height:1.8px;background:var(--text);transition:0.35s var(--ease-out);border-radius:1px;transform-origin:center}
+.hamburger.active span:nth-child(1){transform:rotate(45deg) translate(4.5px,4.5px)}
+.hamburger.active span:nth-child(2){opacity:0;transform:scaleX(0)}
+.hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(4.5px,-4.5px)}
+
+.mobile-menu{
+  position:fixed;inset:0;z-index:99;background:rgba(4,7,13,0.96);
+  backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;transition:0.5s var(--ease-out);
+}
+.mobile-menu.active{opacity:1;visibility:visible}
+.mobile-menu ul{list-style:none;text-align:center}
+.mobile-menu li{margin:1.8rem 0;opacity:0;transform:translateY(20px);transition:0.5s var(--ease-out)}
+.mobile-menu.active li{opacity:1;transform:translateY(0)}
+.mobile-menu li:nth-child(1){transition-delay:0.1s}
+.mobile-menu li:nth-child(2){transition-delay:0.15s}
+.mobile-menu li:nth-child(3){transition-delay:0.2s}
+.mobile-menu li:nth-child(4){transition-delay:0.25s}
+.mobile-menu a{color:var(--text);text-decoration:none;font-size:1.6rem;font-weight:700;letter-spacing:-0.02em;transition:color 0.3s}
+.mobile-menu a:hover{color:var(--cyan)}
+
+/* Section base */
+section{padding:7rem 2.5rem;position:relative;z-index:1}
+.container{max-width:1220px;margin:0 auto}
+.section-tag{
+  display:inline-flex;align-items:center;gap:0.6rem;font-size:0.72rem;font-weight:600;
+  letter-spacing:0.18em;color:var(--cyan);text-transform:uppercase;margin-bottom:1.2rem;
+}
+.section-tag::before{content:'';width:20px;height:1px;background:var(--cyan);border-radius:1px}
+.section-title{
+  font-size:clamp(2.2rem,4.5vw,3.8rem);font-weight:800;letter-spacing:-0.04em;
+  line-height:1.12;margin-bottom:1.3rem;
+}
+.section-subtitle{
+  font-size:1.05rem;color:var(--text-dim);max-width:560px;line-height:1.75;font-weight:400;
+}
+
+/* Hero */
+.hero{min-height:100vh;display:flex;align-items:center;padding-top:6rem;overflow:hidden}
+.hero .container{display:grid;grid-template-columns:1.05fr 0.95fr;gap:5rem;align-items:center}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:0.55rem;
+  background:rgba(0,212,240,0.08);border:1px solid rgba(0,212,240,0.18);
+  padding:0.45rem 1.1rem;border-radius:50px;font-size:0.78rem;color:var(--cyan);
+  font-weight:500;margin-bottom:2.2rem;
+}
+.hero-tag .dot{width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:softPulse 2.2s ease-in-out infinite}
+@keyframes softPulse{0%,100%{opacity:0.3;box-shadow:0 0 0 0 rgba(0,212,240,0.4)}50%{opacity:1;box-shadow:0 0 10px 2px rgba(0,212,240,0.6)}}
+.hero-title{
+  font-size:clamp(2.8rem,5.5vw,5rem);font-weight:900;letter-spacing:-0.05em;
+  line-height:1.02;margin-bottom:1.6rem;
+}
+.hero-title .cyan{color:transparent;background:linear-gradient(135deg,var(--cyan) 0%,#60a5fa 50%,var(--cyan) 100%);-webkit-background-clip:text;background-clip:text}
+.hero-text{font-size:1.1rem;color:var(--text-dim);max-width:470px;line-height:1.8;margin-bottom:2.8rem;font-weight:400}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap}
+.btn-primary{
+  padding:0.95rem 2.2rem;background:linear-gradient(135deg,var(--cyan) 0%,#0098b0 100%);
+  border:none;border-radius:50px;color:#fff;font-weight:600;font-size:0.92rem;cursor:none;
+  transition:all 0.4s var(--ease-out);text-decoration:none;display:inline-block;
+  letter-spacing:0.02em;position:relative;overflow:hidden;
+}
+.btn-primary::after{
+  content:'';position:absolute;inset:0;background:linear-gradient(135deg,#60a5fa,var(--cyan));
+  opacity:0;transition:opacity 0.4s;
+}
+.btn-primary:hover::after{opacity:1}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 20px 50px rgba(0,180,210,0.4)}
+.btn-primary span{position:relative;z-index:1}
+.btn-outline{
+  padding:0.95rem 2.2rem;background:transparent;border:1px solid rgba(255,255,255,0.18);
+  border-radius:50px;color:var(--text);font-weight:500;font-size:0.92rem;cursor:none;
+  transition:all 0.4s var(--ease-out);text-decoration:none;display:inline-block;letter-spacing:0.02em;
+}
+.btn-outline:hover{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.35);transform:translateY(-3px)}
+
+.hero-visual{position:relative;display:flex;align-items:center;justify-content:center}
+.hero-glow{
+  position:absolute;width:420px;height:420px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,212,240,0.25),transparent 65%);
+  filter:blur(90px);z-index:0;pointer-events:none;
+}
+.hero-ring{
+  position:absolute;width:340px;height:340px;border-radius:50%;
+  border:1px solid rgba(255,255,255,0.04);z-index:0;
+  animation:ringPulse 8s ease-in-out infinite;
+}
+@keyframes ringPulse{0%,100%{transform:scale(1);opacity:0.3}50%{transform:scale(1.15);opacity:0.6}}
+.hero-product-card{
+  background:linear-gradient(145deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));
+  border:1px solid var(--border);border-radius:26px;padding:2.8rem 2.5rem;
+  position:relative;z-index:2;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  text-align:center;animation:floatCard 7s ease-in-out infinite;
+  transition:transform 0.3s,border-color 0.3s;
+}
+@keyframes floatCard{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+.hero-product-card .product-visual{
+  width:180px;height:220px;margin:0 auto 1.8rem;
+  background:linear-gradient(180deg,rgba(0,200,224,0.12),rgba(0,120,180,0.03));
+  border-radius:var(--radius);display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.hero-product-card .product-visual img{
+  width:100%;height:100%;object-fit:contain;position:relative;z-index:1;
+  filter:drop-shadow(0 15px 35px rgba(0,200,224,0.3));
+  transition:transform 0.6s var(--ease-out);
+}
+.hero-product-card:hover .product-visual img{transform:scale(1.06)}
+.hero-product-card .product-visual .mist{
+  position:absolute;bottom:0;left:10%;right:10%;height:50%;
+  background:linear-gradient(0deg,rgba(0,200,224,0.15),transparent);
+  animation:mistRise 4s ease-in-out infinite;border-radius:50%;z-index:0;
+}
+@keyframes mistRise{0%,100%{transform:translateY(0);opacity:0.4}50%{transform:translateY(-15px);opacity:0.8}}
+.hero-product-card h3{font-size:1.15rem;font-weight:700;margin-bottom:0.3rem;letter-spacing:-0.01em}
+.hero-product-card .sub{font-size:0.82rem;color:var(--text-dim);font-weight:500}
+
+/* Stats */
+.stats-strip{
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,0.012);position:relative;z-index:1;
+}
+.stats-strip .container{display:grid;grid-template-columns:repeat(4,1fr);padding:3rem 0;text-align:center}
+.stat-item .stat-num{
+  font-size:2.8rem;font-weight:800;letter-spacing:-0.03em;
+  background:linear-gradient(180deg,var(--text) 0%,rgba(234,238,244,0.7) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:0.3rem;font-variant-numeric:tabular-nums;font-family:'Inter',sans-serif;
+}
+.stat-item .stat-label{font-size:0.8rem;color:var(--text-dim);font-weight:500;letter-spacing:0.02em}
+.stat-item .stat-suffix{font-size:1.2rem;font-weight:700;color:var(--cyan);display:inline-block;margin-left:0.15rem}
+
+/* Products */
+.products{background:var(--bg2)}
+.products .section-tag,.products .section-title{text-align:center}
+.products .section-subtitle{text-align:center;margin:0 auto 4.5rem}
+.product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
+.product-card{
+  background:linear-gradient(160deg,var(--surface),rgba(255,255,255,0.01));
+  border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;
+  position:relative;overflow:hidden;transition:all 0.5s var(--ease-out);cursor:none;
+}
+.product-card:hover{
+  transform:translateY(-10px);border-color:var(--border-hover);
+  box-shadow:0 35px 70px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.03) inset;
+}
+.product-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;transition:height 0.45s var(--ease-out);
+}
+.product-card:nth-child(1)::before{background:linear-gradient(90deg,var(--cyan),#00e0b0)}
+.product-card:nth-child(2)::before{background:linear-gradient(90deg,var(--cyan),var(--blue))}
+.product-card:nth-child(3)::before{background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold))}
+.product-card:hover::before{height:6px}
+.product-card:nth-child(2){border-color:rgba(0,212,240,0.15)}
+.product-card:nth-child(2)::after{content:'BEST SELLER';position:absolute;top:1.2rem;right:-2rem;background:var(--cyan);color:#000;font-size:0.65rem;font-weight:700;padding:0.25rem 2.5rem;transform:rotate(45deg);letter-spacing:0.1em}
+.product-badge{
+  display:inline-block;padding:0.3rem 0.85rem;border-radius:50px;font-size:0.68rem;
+  font-weight:700;letter-spacing:0.08em;margin-bottom:1.6rem;text-transform:uppercase;
+}
+.product-card:nth-child(1) .product-badge{background:rgba(0,200,200,0.12);color:#00e0b0}
+.product-card:nth-child(2) .product-badge{background:rgba(0,212,240,0.15);color:var(--cyan)}
+.product-card:nth-child(3) .product-badge{background:rgba(201,167,107,0.12);color:var(--gold-light)}
+.product-name{font-size:1.6rem;font-weight:800;margin-bottom:0.3rem;letter-spacing:-0.03em}
+.product-tagline{font-size:0.85rem;color:var(--gold);margin-bottom:1.6rem;font-weight:500;letter-spacing:0.04em;text-transform:uppercase}
+.product-price{font-size:2.6rem;font-weight:900;letter-spacing:-0.04em;margin-bottom:1.6rem}
+.product-price span{font-size:0.85rem;color:var(--text-dim);font-weight:400}
+.product-specs{list-style:none;margin-bottom:1.8rem;display:grid;gap:0.45rem}
+.product-specs li{
+  font-size:0.83rem;color:var(--text-dim);padding:0.45rem 0;
+  border-bottom:1px solid rgba(255,255,255,0.035);display:flex;justify-content:space-between;
+}
+.product-specs li span:last-child{color:var(--text);font-weight:600}
+.product-features{display:flex;flex-wrap:wrap;gap:0.45rem}
+.product-image{
+  width:100%;height:200px;border-radius:var(--radius-sm);overflow:hidden;
+  margin-bottom:1.5rem;background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(0,0,0,0.2));
+  display:flex;align-items:center;justify-content:center;
+}
+.product-image img{
+  width:75%;height:75%;object-fit:contain;
+  filter:drop-shadow(0 15px 30px rgba(0,0,0,0.4));
+  transition:transform 0.6s var(--ease-out);
+}
+.product-card:hover .product-image img{transform:scale(1.08)}
+.product-features span{
+  font-size:0.72rem;padding:0.3rem 0.75rem;border-radius:50px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+  color:var(--text-dim);transition:all 0.3s;
+}
+.product-card:hover .product-features span{border-color:rgba(255,255,255,0.1);color:var(--text)}
+
+/* Tech */
+.tech-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-top:3.5rem}
+.tech-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:2.2rem;transition:all 0.45s var(--ease-out);
+  display:flex;gap:1.6rem;align-items:flex-start;cursor:none;
+}
+.tech-card:hover{border-color:var(--border-hover);transform:translateY(-4px);background:var(--surface-hover);box-shadow:0 25px 50px rgba(0,0,0,0.3)}
+.tech-icon{
+  width:50px;height:50px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+  font-size:1.35rem;flex-shrink:0;transition:transform 0.4s var(--ease-spring);
+}
+.tech-card:hover .tech-icon{transform:scale(1.15)}
+.tech-card:nth-child(1) .tech-icon{background:rgba(0,212,240,0.14);color:var(--cyan)}
+.tech-card:nth-child(2) .tech-icon{background:rgba(59,130,246,0.14);color:var(--blue)}
+.tech-card:nth-child(3) .tech-icon{background:rgba(201,167,107,0.14);color:var(--gold-light)}
+.tech-card:nth-child(4) .tech-icon{background:rgba(0,224,176,0.14);color:#00e0b0}
+.tech-card h4{font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;letter-spacing:-0.02em}
+.tech-card p{font-size:0.9rem;color:var(--text-dim);line-height:1.65}
+
+/* About */
+.about .container{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+.about-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:22px;padding:2.5rem;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+.about-card h4{font-size:0.72rem;font-weight:700;letter-spacing:0.16em;color:var(--cyan);margin-bottom:0.6rem;text-transform:uppercase}
+.about-card .location{font-size:1.2rem;font-weight:700;color:var(--text)}
+.about-card p{font-size:0.9rem;color:var(--text-dim);line-height:1.75;margin-top:0.8rem}
+.about-values{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2.2rem}
+.value-item{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:1.6rem;text-align:center;
+  transition:all 0.4s;cursor:none;
+}
+.value-item:hover{border-color:var(--border-hover);background:var(--surface-hover);transform:translateY(-3px)}
+.value-item .value-icon{font-size:1.8rem;margin-bottom:0.6rem}
+.value-item h5{font-size:0.92rem;font-weight:700;margin-bottom:0.3rem}
+.value-item p{font-size:0.78rem;color:var(--text-dim)}
+
+/* Market */
+.market-strip{
+  background:var(--surface);border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);text-align:center;padding:4rem 2rem;
+  position:relative;z-index:1;
+}
+.market-strip .section-tag,.market-strip .section-title{margin-left:auto;margin-right:auto;text-align:center}
+.market-strip .section-subtitle{text-align:center;margin:0 auto 2.5rem}
+.market-tags{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap}
+.market-tags span{
+  padding:0.65rem 1.6rem;background:rgba(255,255,255,0.02);
+  border:1px solid var(--border);border-radius:50px;font-size:0.84rem;
+  color:var(--text-dim);transition:all 0.35s;cursor:none;
+}
+.market-tags span:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,240,0.05)}
+
+/* Contact */
+.contact{background:var(--bg2)}
+.contact .container{text-align:center}
+.contact-box{
+  max-width:620px;margin:3.5rem auto 0;background:var(--surface);
+  border:1px solid var(--border);border-radius:22px;padding:3rem 2.5rem;text-align:left;
+}
+.contact-info{display:grid;gap:1.4rem}
+.contact-row{display:flex;align-items:center;gap:1.1rem;font-size:0.93rem}
+.contact-row .ci-icon{
+  width:42px;height:42px;border-radius:11px;background:rgba(0,212,240,0.08);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem;
+}
+.contact-row strong{display:block;font-size:0.75rem;color:var(--text-dim);font-weight:600;letter-spacing:0.04em;margin-bottom:0.15rem;text-transform:uppercase}
+
+/* Footer */
+.footer{padding:5rem 2.5rem 2rem;border-top:1px solid var(--border);background:var(--bg);position:relative;z-index:1}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3.5rem;max-width:1220px;margin:0 auto}
+.footer h5{font-size:0.76rem;font-weight:700;letter-spacing:0.12em;color:var(--text-dim);margin-bottom:1.3rem;text-transform:uppercase}
+.footer-brand p{font-size:0.88rem;color:var(--text-dim);line-height:1.75;margin-top:1.2rem}
+.footer ul{list-style:none}
+.footer ul li{margin-bottom:0.65rem}
+.footer ul a{color:var(--text-muted);text-decoration:none;font-size:0.84rem;transition:color 0.3s}
+.footer ul a:hover{color:var(--cyan)}
+.footer-bottom{
+  max-width:1220px;margin:3.5rem auto 0;padding-top:2rem;
+  border-top:1px solid var(--border);display:flex;
+  justify-content:space-between;align-items:center;
+  font-size:0.78rem;color:var(--text-muted);
+}
+
+/* Scroll-line left decoration */
+.scroll-line{position:fixed;left:2.5rem;top:50%;transform:translateY(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:1rem}
+.scroll-line .dot{width:4px;height:4px;border-radius:50%;background:var(--text-muted);transition:all 0.5s}
+.scroll-line .dot.active{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+
+/* Reveal */
+.reveal{opacity:0;transform:translateY(50px);transition:opacity 0.9s var(--ease-out),transform 0.9s var(--ease-out)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:0.1s}
+.reveal-delay-2{transition-delay:0.2s}
+.reveal-delay-3{transition-delay:0.3s}
+.reveal-delay-4{transition-delay:0.4s}
+
+/* Responsive */
+@media (max-width:1024px){
+  .hero .container{grid-template-columns:1fr;text-align:center;gap:3rem}
+  .hero-text{margin:0 auto 2.5rem}
+  .hero-btns{justify-content:center}
+  .hero-visual{order:-1}
+  .hero-product-card .product-visual{width:140px;height:170px}
+  .product-grid{grid-template-columns:repeat(2,1fr)}
+  .about .container{grid-template-columns:1fr;gap:3rem}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:2.5rem}
+  .stats-strip .container{grid-template-columns:repeat(2,1fr);gap:2.5rem}
+  .scroll-line{display:none}
+}
+
+@media (max-width:768px){
+  body{cursor:auto}
+  body .custom-cursor,body .cursor-follower{display:none}
+  .nav{padding:1rem 1.5rem}
+  .nav.scrolled{padding:0.65rem 1.5rem}
+  .nav-links{display:none}
+  .nav-cta{display:none}
+  .hamburger{display:flex}
+  .product-grid{grid-template-columns:1fr;max-width:420px;margin:0 auto}
+  .tech-grid{grid-template-columns:1fr}
+  .about-values{grid-template-columns:1fr 1fr}
+  section{padding:5rem 1.5rem}
+  .hero{min-height:auto;padding:7rem 1.5rem 4rem}
+  .hero-title{font-size:2.4rem}
+  .footer-grid{grid-template-columns:1fr;gap:2rem}
+  .footer-bottom{flex-direction:column;gap:0.6rem;text-align:center}
+  .stats-strip .container{gap:1.8rem}
+  .contact-box{padding:2rem 1.5rem}
+  .product-card:nth-child(2)::after{font-size:0.6rem;top:1rem;right:-2.2rem}
+}
+
+@media (max-width:480px){
+  .about-values{grid-template-columns:1fr}
+  .hero-product-card{padding:2rem 1.5rem}
+  .hero-product-card .product-visual{width:110px;height:140px}
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="preloader">
+  <svg width="60" height="60" viewBox="0 0 60 60">
+    <circle cx="30" cy="30" r="26" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="2"/>
+    <circle cx="30" cy="30" r="26" fill="none" stroke="url(#plGrad)" stroke-width="2" stroke-dasharray="163" stroke-dashoffset="163" stroke-linecap="round" transform="rotate(-90 30 30)">
+      <animate attributeName="stroke-dashoffset" from="163" to="0" dur="1.2s" fill="freeze" calcMode="spline" keySplines="0.25 0.1 0.25 1"/>
+    </circle>
+    <defs><linearGradient id="plGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00d4f0"/><stop offset="100%" stop-color="#0088cc"/></linearGradient></defs>
+  </svg>
+</div>
+<div class="custom-cursor" id="cursor"></div>
+<div class="cursor-follower" id="cursorFollower"></div>
+<div class="grain"></div>
+
+<div class="ambient-bg">
+  <div class="ambient-orb"></div>
+  <div class="ambient-orb"></div>
+  <div class="ambient-orb"></div>
+</div>
+
+<div class="scroll-line" id="scrollLine">
+  <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+</div>
+
+<nav class="nav" id="nav">
+  <div class="nav-logo">ORIDINE</div>
+  <ul class="nav-links">
+    <li><a href="#products">Products</a></li>
+    <li><a href="#technology">Technology</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Partner With Us</a>
+  <div class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <ul>
+    <li><a href="#products" data-close>Products</a></li>
+    <li><a href="#technology" data-close>Technology</a></li>
+    <li><a href="#about" data-close>About</a></li>
+    <li><a href="#contact" data-close>Contact</a></li>
+  </ul>
+</div>
+
+<section class="hero" id="home">
+  <div class="container">
+    <div class="hero-content">
+      <div class="reveal">
+        <div class="hero-tag"><span class="dot"></span> Cold Evaporation · Zero White Dust</div>
+        <h1 class="hero-title">Breathe <span class="cyan">Pure</span><br>Live <span class="cyan">Healthy</span></h1>
+      </div>
+      <div class="reveal reveal-delay-1">
+        <p class="hero-text">Cold evaporation technology engineered for the discerning home. No ultrasonic mist. No white dust residue. Just naturally pure, perfectly humidified air — intelligently calibrated for you and your family.</p>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="hero-btns">
+          <a href="#products" class="btn-primary"><span>Explore Products</span></a>
+          <a href="#technology" class="btn-outline">Our Technology</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual reveal reveal-delay-2">
+      <div class="hero-glow" id="heroGlow"></div>
+      <div class="hero-ring"></div>
+      <div class="hero-product-card" id="heroCard">
+        <div class="product-visual">
+          <div class="mist"></div>
+          <img src="智序H2-PRO(智能旗舰款).jpg" alt="Oridine H2-PRO" loading="eager">
+        </div>
+        <h3>H2-PRO</h3>
+        <p class="sub">Intelligent Flagship · 600ml/h · UV-C Sterilization</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div class="container">
+    <div class="stat-item reveal">
+      <div class="stat-num" data-count="58">0</div>
+      <div class="stat-label">Million Units Annual Production</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-1">
+      <div class="stat-num" data-count="72">0</div>
+      <div class="stat-label">Percent Global Market Share</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-2">
+      <div class="stat-num" data-count="45">0</div>
+      <div class="stat-label">Countries &amp; Regions Served</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-3">
+      <div class="stat-num" data-count="99.9">0</div>
+      <div class="stat-label">Percent Bacteria Filtration</div>
+    </div>
+  </div>
+</div>
+
+<section id="products" class="products">
+  <div class="container">
+    <div class="section-tag reveal">Product Line</div>
+    <h2 class="section-title reveal">Engineered for Every Space</h2>
+    <p class="section-subtitle reveal">Three precision-crafted cold evaporation humidifiers — from essential quality to a full ecosystem, one uncompromising standard of air purity.</p>
+    <div class="product-grid">
+      <div class="product-card reveal" data-tilt>
+        <div class="product-image"><img src="智序H1-ECO(品质入门款).jpg" alt="H1-ECO" loading="lazy"></div>
+        <div class="product-badge">Essential</div>
+        <h3 class="product-name">H1-ECO</h3>
+        <p class="product-tagline">Quality Entry</p>
+        <div class="product-price">$99<span>.90</span></div>
+        <ul class="product-specs">
+          <li><span>Technology</span><span>Cold Evaporation</span></li>
+          <li><span>Humidification</span><span>400 ml/h</span></li>
+          <li><span>Tank</span><span>4 Liters</span></li>
+          <li><span>Noise</span><span>≤ 31 dB</span></li>
+          <li><span>Coverage</span><span>15–25 m²</span></li>
+        </ul>
+        <div class="product-features">
+          <span>No White Dust</span><span>Mechanical Dial</span><span>3 Speeds</span><span>Low Power</span>
+        </div>
+      </div>
+      <div class="product-card reveal reveal-delay-1" data-tilt>
+        <div class="product-image"><img src="智序H2-PRO(智能旗舰款).jpg" alt="H2-PRO" loading="lazy"></div>
+        <div class="product-badge">Flagship</div>
+        <h3 class="product-name">H2-PRO</h3>
+        <p class="product-tagline">Intelligent Premium</p>
+        <div class="product-price">$129<span>.90</span></div>
+        <ul class="product-specs">
+          <li><span>Technology</span><span>Cold Evap + UV-C</span></li>
+          <li><span>Humidification</span><span>600 ml/h</span></li>
+          <li><span>Tank</span><span>6 Liters</span></li>
+          <li><span>Noise</span><span>≤ 31.9 dB</span></li>
+          <li><span>Coverage</span><span>30–45 m²</span></li>
+        </ul>
+        <div class="product-features">
+          <span>UV-C 99% Sterilization</span><span>Smart Humidity</span><span>PM2.5 Sensor</span><span>App Remote</span><span>Silver Ion Filter</span>
+        </div>
+      </div>
+      <div class="product-card reveal reveal-delay-2" data-tilt>
+        <div class="product-image"><img src="智序H3-MAX(全能生态款).jpg" alt="H3-MAX" loading="lazy"></div>
+        <div class="product-badge">Ecosystem</div>
+        <h3 class="product-name">H3-MAX</h3>
+        <p class="product-tagline">Full Ecosystem</p>
+        <div class="product-price">$259<span>.90</span></div>
+        <ul class="product-specs">
+          <li><span>Technology</span><span>Dual Core + HEPA H13</span></li>
+          <li><span>Humidification</span><span>1000 ml/h</span></li>
+          <li><span>Tank</span><span>9 Liters</span></li>
+          <li><span>Noise</span><span>≤ 32 dB</span></li>
+          <li><span>Coverage</span><span>50–80 m²</span></li>
+        </ul>
+        <div class="product-features">
+          <span>Dual UV-C</span><span>HEPA H13</span><span>Wi-Fi 6</span><span>Voice Control</span><span>Negative Ion</span><span>Formaldehyde Removal</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="technology">
+  <div class="container">
+    <div class="section-tag reveal">Core Technology</div>
+    <h2 class="section-title reveal">Why Cold Evaporation</h2>
+    <p class="section-subtitle reveal">Ultrasonic humidifiers aerosolize dissolved minerals into micron-sized white dust that coats surfaces and irritates airways. Cold evaporation changes the physics entirely — only pure water vapor enters your air, while minerals stay behind.</p>
+    <div class="tech-grid">
+      <div class="tech-card reveal">
+        <div class="tech-icon">💧</div>
+        <div>
+          <h4>Zero White Dust</h4>
+          <p>Natural evaporation leaves calcium and magnesium ions in the tank. No residue on surfaces — critical for hard water regions covering 83% of Central Asian homes.</p>
+        </div>
+      </div>
+      <div class="tech-card reveal reveal-delay-1">
+        <div class="tech-icon">🛡️</div>
+        <div>
+          <h4>99.9% Bacteria Barrier</h4>
+          <p>UV-C deep sterilization combined with silver-ion filters eliminates 99.9% of airborne pathogens before they reach your breathing zone. Tested to CNS/GB standards.</p>
+        </div>
+      </div>
+      <div class="tech-card reveal reveal-delay-2">
+        <div class="tech-icon">🤖</div>
+        <div>
+          <h4>AI Smart Humidity Control</h4>
+          <p>Real-time environmental sensors track humidity and PM2.5 levels, auto-adjusting output to keep your room in the optimal 40–60% humidity range for respiratory wellness.</p>
+        </div>
+      </div>
+      <div class="tech-card reveal reveal-delay-3">
+        <div class="tech-icon">🌿</div>
+        <div>
+          <h4>HEPA H13 Air Purification</h4>
+          <p>The H3-MAX integrates medical-grade HEPA H13 with activated carbon, capturing 99.97% of particles down to 0.3 microns — humidification and purification in one.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about" class="about">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-tag">About Oridine</div>
+      <h2 class="section-title">Smart Living Since 2008</h2>
+      <p class="section-subtitle">Founded in 2008 and headquartered in Chongqing, China, Oridine integrates R&amp;D, manufacturing, and global distribution under one roof. Our 200+ patents and 8.5% R&amp;D investment ratio power a relentless cycle of innovation.</p>
+      <p class="section-subtitle" style="margin-top:1.2rem">We serve 45+ countries across Central Asia, Europe, the Middle East, and Southeast Asia — fueled by China's most advanced appliance supply chain. Oridine products typically deliver 30% better value than European equivalents with richer feature sets and faster customization cycles.</p>
+      <div class="about-values">
+        <div class="value-item">
+          <div class="value-icon">🔬</div>
+          <h5>Innovation Engine</h5>
+          <p>200+ patents, 8.5% R&amp;D ratio</p>
+        </div>
+        <div class="value-item">
+          <div class="value-icon">🌍</div>
+          <h5>Global Footprint</h5>
+          <p>45+ markets across 4 continents</p>
+        </div>
+        <div class="value-item">
+          <div class="value-icon">✅</div>
+          <h5>Fully Certified</h5>
+          <p>EAC · GOST-UZ · ISO 9001</p>
+        </div>
+        <div class="value-item">
+          <div class="value-icon">🤝</div>
+          <h5>Partner First</h5>
+          <p>30%+ channel margin, full ecosystem</p>
+        </div>
+      </div>
+    </div>
+    <div class="about-visual reveal reveal-delay-2">
+      <div class="about-card">
+        <h4>Global Headquarters</h4>
+        <p class="location">Chongqing, China</p>
+        <p>Building 4, 301 Tian Sheng Road<br>Changyuan Sub-district<br>Rongchang District, Chongqing</p>
+        <p style="margin-top:1.2rem">Located at the heart of China's largest appliance manufacturing cluster — a 5,800-hectare ecosystem capable of delivering from mold design to finished product in just 30 days.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="market-strip">
+  <div class="container reveal">
+    <div class="section-tag">Global Markets</div>
+    <h2 class="section-title">Powered by Belt &amp; Road</h2>
+    <p class="section-subtitle">Chongqing's strategic rail hub delivers to Central Asian capitals in 12–18 days — one-third the time of traditional sea-land routes, at 60% lower unit logistics cost.</p>
+    <div class="market-tags">
+      <span>Kazakhstan</span><span>Uzbekistan</span><span>Kyrgyzstan</span><span>Turkmenistan</span><span>Tajikistan</span>
+      <span>Russia</span><span>EU</span><span>Middle East</span><span>Southeast Asia</span><span>North Africa</span>
+    </div>
+  </div>
+</div>
+
+<section id="contact" class="contact">
+  <div class="container">
+    <div class="section-tag reveal">Partner With Us</div>
+    <h2 class="section-title reveal">Let's Build Together</h2>
+    <p class="section-subtitle reveal" style="text-align:center;margin:0 auto">We're seeking regional distributors, retail chain partners, and e-commerce platforms. MOQ: 500 units. Lead time: 30 days. Full marketing and after-sales support included.</p>
+    <div class="contact-box reveal reveal-delay-1">
+      <div class="contact-info">
+        <div class="contact-row">
+          <div class="ci-icon">📍</div>
+          <div>
+            <strong>Headquarters</strong>
+            Building 4, 301 Tian Sheng Rd, Changyuan, Rongchang, Chongqing, China
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="ci-icon">📧</div>
+          <div>
+            <strong>Business Inquiries</strong>
+            15683815787@163.com
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="ci-icon">📞</div>
+          <div>
+            <strong>Direct Line</strong>
+            +86 156-8381-5787
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo" style="font-size:1.4rem">ORIDINE</div>
+      <p>Smart health appliances engineered in China, trusted worldwide. Cold evaporation technology for a cleaner, healthier indoor environment — redefining how the world breathes.</p>
+    </div>
+    <div>
+      <h5>Products</h5>
+      <ul>
+        <li><a href="#">H1-ECO</a></li>
+        <li><a href="#">H2-PRO</a></li>
+        <li><a href="#">H3-MAX</a></li>
+        <li><a href="#">Compare Models</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Company</h5>
+      <ul>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#technology">Technology</a></li>
+        <li><a href="#">Certifications</a></li>
+        <li><a href="#">Careers</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Partners</h5>
+      <ul>
+        <li><a href="#contact">Become Distributor</a></li>
+        <li><a href="#">OEM / ODM</a></li>
+        <li><a href="#">Support Portal</a></li>
+        <li><a href="#">Downloads</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2025 Oridine. A brand of 智序智能生活电器股份有限公司. All rights reserved.</span>
+    <span>Privacy Policy · Terms of Service</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+
+const isMobile=/Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent)||window.innerWidth<769;
+if(isMobile)document.body.classList.add('mobile');
+
+// Custom cursor
+const cursor=document.getElementById('cursor');
+const follower=document.getElementById('cursorFollower');
+let mx=0,my=0,cx=0,cy=0;
+
+if(!isMobile){
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px'});
+  function animateFollower(){
+    cx+=(mx-cx)*0.15;cy+=(my-cy)*0.15;
+    follower.style.left=cx+'px';follower.style.top=cy+'px';
+    requestAnimationFrame(animateFollower);
+  }
+  animateFollower();
+
+  const hoverTargets=document.querySelectorAll('a,button,.product-card,.tech-card,.value-item,.market-tags span,.nav-cta,.btn-primary,.btn-outline');
+  hoverTargets.forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cursor.classList.add('hover');follower.classList.add('hover')});
+    el.addEventListener('mouseleave',()=>{cursor.classList.remove('hover');follower.classList.remove('hover')});
+  });
+}
+
+// Preloader
+window.addEventListener('load',()=>{
+  const preloader=document.getElementById('preloader');
+  if(preloader){setTimeout(()=>preloader.classList.add('hidden'),350)}
+});
+
+// Sticky nav
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>60)});
+
+// Mobile menu
+const hamburger=document.getElementById('hamburger');
+const mobileMenu=document.getElementById('mobileMenu');
+if(hamburger&&mobileMenu){
+  hamburger.addEventListener('click',()=>{
+    const isOpen=mobileMenu.classList.contains('active');
+    hamburger.classList.toggle('active');
+    mobileMenu.classList.toggle('active');
+    document.body.style.overflow=isOpen?'':'hidden';
+  });
+  document.querySelectorAll('[data-close]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      hamburger.classList.remove('active');
+      mobileMenu.classList.remove('active');
+      document.body.style.overflow='';
+    });
+  });
+}
+
+// Reveal on scroll
+const revealObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');revealObserver.unobserve(entry.target)}})
+},{threshold:0.12,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+
+// Counter animation
+const countObserver=new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const el=entry.target,target=parseFloat(el.dataset.count),duration=2200;
+      const isFloat=target%1!==0;let raf;
+      const start=performance.now();
+      function update(now){
+        const p=Math.min((now-start)/duration,1);
+        const val=target*(1-Math.pow(1-p,3));
+        el.textContent=isFloat?val.toFixed(1):String(Math.floor(val));
+        if(p<1)raf=requestAnimationFrame(update);else el.textContent=isFloat?target.toFixed(1):String(target);
+      }
+      raf=requestAnimationFrame(update);
+      countObserver.unobserve(el);
+    }
+  });
+},{threshold:0.4});
+document.querySelectorAll('.stat-num[data-count]').forEach(el=>countObserver.observe(el));
+
+// Hero glow follows mouse
+const heroGlow=document.getElementById('heroGlow');
+if(heroGlow&&!isMobile){
+  document.addEventListener('mousemove',e=>{
+    const rect=heroGlow.parentElement.getBoundingClientRect();
+    const x=(e.clientX-rect.left-rect.width/2)*0.08;
+    const y=(e.clientY-rect.top-rect.height/2)*0.08;
+    heroGlow.style.transform=`translate(${x}px,${y}px)`;
+  });
+}
+
+// Tilt effect on product cards
+document.querySelectorAll('[data-tilt]').forEach(card=>{
+  card.addEventListener('mousemove',function(e){
+    if(isMobile)return;
+    const rect=this.getBoundingClientRect();
+    const x=(e.clientX-rect.left)/rect.width-0.5;
+    const y=(e.clientY-rect.top)/rect.height-0.5;
+    this.style.transform=`perspective(1000px) rotateY(${x*8}deg) rotateX(${-y*8}deg) translateY(-10px)`;
+  });
+  card.addEventListener('mouseleave',function(){this.style.transform=''});
+});
+
+// Scroll line indicator
+const scrollDots=document.querySelectorAll('#scrollLine .dot');
+if(scrollDots.length&&!isMobile){
+  const sections=document.querySelectorAll('section[id],div[id].stats-strip,div[id].market-strip');
+  window.addEventListener('scroll',()=>{
+    const scrollPos=window.scrollY+window.innerHeight/2;
+    let activeIdx=0;
+    sections.forEach((sec,i)=>{if(scrollPos>=sec.offsetTop)activeIdx=i});
+    scrollDots.forEach((dot,i)=>dot.classList.toggle('active',i===activeIdx||(activeIdx===sections.length-1&&i===scrollDots.length-1)));
+  });
+}
+
+})();
+</script>
+</body>
+</html>
