@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORIDINE 报价计算系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f8f9fb;
+  --bg-card: #ffffff;
+  --bg-elevated: #f0f2f6;
+  --border: #e5e7ed;
+  --border-hover: #cdd2db;
+  --text: #1a1d28;
+  --text-dim: #5f6578;
+  --text-muted: #949aad;
+  --cyan: #009cb8;
+  --cyan-light: #e6f4f7;
+  --cyan-bright: #00b8d4;
+  --green: #0d9488;
+  --green-light: #e6f5f3;
+  --amber: #d97706;
+  --amber-light: #fef7ed;
+  --gold: #b0883a;
+  --gold-light: #faf6ef;
+  --blue: #2563eb;
+  --blue-light: #eef2ff;
+  --red: #ef4444;
+  --red-light: #fef2f2;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-xs: 7px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow: 0 4px 16px rgba(0,0,0,0.05), 0 2px 6px rgba(0,0,0,0.03);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+
+.header{
+  background:var(--bg-card);border-bottom:1px solid var(--border);
+  padding:0 1rem;position:sticky;top:0;z-index:100;
+  box-shadow:var(--shadow-sm);
+}
+@media(min-width:640px){.header{padding:0 2rem}}
+.header-inner{
+  max-width:1400px;margin:0 auto;display:flex;align-items:center;
+  justify-content:space-between;height:56px;gap:0.5rem;
+}
+@media(min-width:640px){.header-inner{height:64px}}
+.header-logo{
+  font-size:1rem;font-weight:800;letter-spacing:-0.03em;
+  color:var(--text);display:flex;align-items:center;gap:0.4rem;
+}
+@media(min-width:640px){.header-logo{font-size:1.3rem;gap:0.6rem}}
+.header-logo .mark{
+  width:28px;height:28px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--cyan),#007d94);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:0.75rem;font-weight:900;
+}
+@media(min-width:640px){.header-logo .mark{width:34px;height:34px;border-radius:9px;font-size:0.85rem}}
+.header-badge{
+  font-size:0.62rem;font-weight:600;padding:0.25rem 0.6rem;
+  background:var(--cyan-light);color:var(--cyan);
+  border-radius:50px;letter-spacing:0.03em;white-space:nowrap;
+  display:none;
+}
+@media(min-width:480px){.header-badge{display:inline}}
+.header-actions{display:flex;align-items:center;gap:0.5rem}
+.header-info{font-size:0.7rem;color:var(--text-dim);font-weight:500;white-space:nowrap}
+@media(min-width:480px){.header-info{font-size:0.78rem}}
+.header-info span{font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace}
+
+.main{max-width:1400px;margin:0 auto;padding:1rem 0.8rem 3rem}
+@media(min-width:640px){.main{padding:1.8rem 2rem 4rem}}
+.page-title{font-size:1.2rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:0.2rem}
+@media(min-width:640px){.page-title{font-size:1.65rem}}
+.page-sub{font-size:0.75rem;color:var(--text-dim);margin-bottom:1.2rem}
+@media(min-width:640px){.page-sub{font-size:0.88rem;margin-bottom:1.8rem}}
+
+.grid-2{display:grid;grid-template-columns:1fr;gap:1rem;align-items:start}
+@media(min-width:1100px){.grid-2{grid-template-columns:420px 1fr;gap:1.5rem}}
+
+.card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1rem;
+  box-shadow:var(--shadow-sm);transition:all 0.3s var(--ease);
+}
+@media(min-width:640px){.card{padding:1.6rem}}
+.card:hover{box-shadow:var(--shadow)}
+.card-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1rem;padding-bottom:0.7rem;
+  border-bottom:1px solid var(--border);flex-wrap:wrap;gap:0.4rem;
+}
+.card-header h3{
+  font-size:0.85rem;font-weight:700;letter-spacing:-0.02em;
+  display:flex;align-items:center;gap:0.4rem;
+}
+@media(min-width:640px){.card-header h3{font-size:0.95rem;gap:0.5rem}}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block}
+.dot.green{background:var(--green)}
+.dot.blue{background:var(--cyan)}
+.dot.amber{background:var(--amber)}
+
+.badge{
+  font-size:0.6rem;font-weight:700;padding:0.2rem 0.55rem;
+  border-radius:50px;letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap;
+}
+.badge.green{background:var(--green-light);color:var(--green)}
+.badge.blue{background:var(--cyan-light);color:var(--cyan)}
+.badge.amber{background:var(--amber-light);color:var(--amber)}
+.badge.gold{background:var(--gold-light);color:var(--gold)}
+
+.form-section{margin-bottom:0.8rem}
+.form-label{
+  display:block;font-size:0.68rem;font-weight:600;letter-spacing:0.05em;
+  color:var(--text-dim);margin-bottom:0.3rem;text-transform:uppercase;
+}
+.form-select,.form-input{
+  width:100%;padding:0.6rem 0.7rem;background:var(--bg);
+  border:1px solid var(--border);border-radius:var(--radius-xs);
+  color:var(--text);font-size:0.8rem;font-family:inherit;
+  transition:all 0.25s;outline:none;
+}
+@media(min-width:640px){
+  .form-select,.form-input{padding:0.7rem 0.9rem;font-size:0.875rem}
+}
+.form-select{
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23949aad' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 0.7rem center;
+  padding-right:2.2rem;cursor:pointer;
+}
+.form-select:focus,.form-input:focus{
+  border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,156,184,0.08);
+  background:#fff;
+}
+.form-row{display:grid;grid-template-columns:1fr;gap:0.6rem}
+@media(min-width:480px){.form-row{grid-template-columns:1fr 1fr}}
+.form-input[type=number]{font-family:'JetBrains Mono','Inter',monospace;font-weight:500}
+
+.mini-row{display:grid;grid-template-columns:repeat(2,1fr);gap:0.4rem;margin-bottom:0.6rem}
+@media(min-width:480px){.mini-row{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:640px){.mini-row{grid-template-columns:repeat(4,1fr)}}
+.mini-row.cols-2{grid-template-columns:repeat(2,1fr)}
+.mini-row.cols-3{grid-template-columns:repeat(2,1fr)}
+@media(min-width:480px){.mini-row.cols-3{grid-template-columns:repeat(3,1fr)}}
+.mini-row.cols-5{grid-template-columns:repeat(2,1fr)}
+@media(min-width:480px){.mini-row.cols-5{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:640px){.mini-row.cols-5{grid-template-columns:repeat(5,1fr)}}
+
+.mini-card{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--radius-xs);padding:0.55rem 0.6rem;text-align:center;
+  transition:all 0.25s;
+}
+@media(min-width:640px){.mini-card{padding:0.7rem 0.8rem}}
+.mini-card:hover{border-color:var(--border-hover);background:var(--bg-card)}
+.mini-card .mv{font-size:0.9rem;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace}
+@media(min-width:640px){.mini-card .mv{font-size:1.05rem}}
+.mini-card .ml{font-size:0.58rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-top:0.1rem;line-height:1.2}
+.mini-card.accent{border-color:rgba(0,156,184,0.2);background:var(--cyan-light)}
+.mini-card.accent .mv{color:var(--cyan)}
+
+.subsection{margin-top:1rem}
+.subsection-title{
+  font-size:0.68rem;font-weight:700;letter-spacing:0.07em;color:var(--text-dim);
+  text-transform:uppercase;margin-bottom:0.6rem;
+  display:flex;align-items:center;gap:0.4rem;
+}
+.subsection-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.freight-card{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:0.75rem 0.9rem;margin-bottom:0.4rem;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.3rem;
+  transition:all 0.25s;
+}
+@media(min-width:640px){.freight-card{padding:1rem 1.2rem;margin-bottom:0.5rem}}
+.freight-card:hover{border-color:var(--border-hover)}
+.freight-card .fl{font-size:0.68rem;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em}
+.freight-card .fv{font-size:1rem;font-weight:700;font-family:'JetBrains Mono',monospace}
+@media(min-width:640px){.freight-card .fv{font-size:1.15rem}}
+.freight-card .fu{font-size:0.65rem;color:var(--text-muted);margin-left:0.2rem}
+.freight-card.highlight{background:var(--cyan-light);border-color:rgba(0,156,184,0.2)}
+.freight-card.highlight .fv{color:var(--cyan)}
+@media(min-width:640px){.freight-card.highlight .fv{font-size:1.35rem}}
+.freight-card.gold-card{background:var(--gold-light);border-color:rgba(176,136,58,0.2)}
+.freight-card.gold-card .fv{color:var(--gold)}
+
+.price-row{display:grid;grid-template-columns:repeat(2,1fr);gap:0.4rem;margin-top:0.6rem}
+@media(min-width:400px){.price-row{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:640px){.price-row{grid-template-columns:repeat(5,1fr);gap:0.5rem;margin-top:0.8rem}}
+.price-item{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:0.6rem;text-align:center;
+  transition:all 0.25s;cursor:pointer;position:relative;
+}
+@media(min-width:640px){.price-item{padding:0.8rem}}
+.price-item:hover{border-color:var(--border-hover);transform:translateY(-1px)}
+.price-item .pt{font-size:0.62rem;font-weight:700;letter-spacing:0.06em;color:var(--text-dim);text-transform:uppercase;margin-bottom:0.2rem}
+.price-item .pv{font-size:0.95rem;font-weight:700;font-family:'JetBrains Mono',monospace}
+@media(min-width:640px){.price-item .pv{font-size:1.15rem}}
+.price-item.active{border-color:var(--cyan);background:var(--cyan-light)}
+.price-item.active .pt{color:var(--cyan)}
+.price-item.active .pv{color:var(--cyan)}
+.price-item.gold{border-color:rgba(176,136,58,0.3);background:var(--gold-light)}
+.price-item.gold .pv{color:var(--gold)}
+
+.price-total{
+  background:linear-gradient(135deg,var(--cyan-light),rgba(0,156,184,0.04));
+  border:1px solid rgba(0,156,184,0.25);border-radius:var(--radius);
+  padding:0.9rem 1rem;margin-top:0.6rem;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.4rem;
+}
+@media(min-width:640px){.price-total{padding:1.2rem 1.6rem;margin-top:0.8rem}}
+.price-total .tlabel{font-size:0.72rem;font-weight:700;color:var(--text)}
+@media(min-width:640px){.price-total .tlabel{font-size:0.82rem}}
+.price-total .tval{
+  font-size:1.3rem;font-weight:900;color:var(--cyan);
+  font-family:'JetBrains Mono',monospace;letter-spacing:-0.03em;
+}
+@media(min-width:640px){.price-total .tval{font-size:1.8rem}}
+
+.empty-state{text-align:center;padding:2rem 1rem;color:var(--text-muted)}
+@media(min-width:640px){.empty-state{padding:3rem 2rem}}
+.empty-state .icon{font-size:2rem;margin-bottom:0.6rem;opacity:0.5}
+
+.toggle-section{margin-top:0.8rem}
+.toggle-btn{
+  width:100%;padding:0.6rem 0.8rem;background:var(--bg);
+  border:1px solid var(--border);border-radius:var(--radius-xs);
+  font-size:0.72rem;font-weight:600;color:var(--text-dim);
+  cursor:pointer;display:flex;align-items:center;justify-content:space-between;
+  transition:all 0.25s;font-family:inherit;
+}
+.toggle-btn:hover{background:var(--bg-card);border-color:var(--border-hover);color:var(--text)}
+.toggle-btn .arrow{transition:transform 0.3s var(--ease);font-size:0.65rem}
+.toggle-btn.open .arrow{transform:rotate(180deg)}
+.toggle-content{display:none;margin-top:0.6rem}
+.toggle-content.open{display:block}
+
+.data-table{
+  width:100%;border-collapse:collapse;font-size:0.68rem;
+}
+@media(min-width:640px){.data-table{font-size:0.78rem}}
+.data-table th{
+  text-align:left;padding:0.4rem 0.5rem;font-size:0.6rem;font-weight:700;
+  letter-spacing:0.05em;color:var(--text-dim);text-transform:uppercase;
+  background:var(--bg);border-bottom:2px solid var(--border);position:sticky;top:0;
+}
+.data-table td{padding:0.4rem 0.5rem;border-bottom:1px solid var(--border);color:var(--text-dim)}
+.data-table tr:hover td{background:var(--bg);color:var(--text)}
+.data-table .mono{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text);font-weight:500}
+.data-table-wrap{
+  max-height:250px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-xs);
+  -webkit-overflow-scrolling:touch;
+}
+
+.summary-bar{display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;margin-bottom:1rem}
+@media(min-width:640px){.summary-bar{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:900px){.summary-bar{grid-template-columns:repeat(4,1fr);gap:0.8rem;margin-bottom:1.5rem}}
+.summary-bar.cols-5{grid-template-columns:repeat(2,1fr)}
+@media(min-width:480px){.summary-bar.cols-5{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:768px){.summary-bar.cols-5{grid-template-columns:repeat(5,1fr)}}
+
+.summary-item{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:0.7rem 0.8rem;
+  box-shadow:var(--shadow-sm);transition:all 0.25s;
+}
+@media(min-width:640px){.summary-item{padding:1rem 1.2rem}}
+.summary-item .sl{font-size:0.6rem;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.2rem}
+.summary-item .sv{font-size:1.1rem;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-0.02em;word-break:break-all}
+.summary-item.clickable{cursor:pointer}
+.summary-item.clickable:hover{border-color:var(--cyan);box-shadow:var(--shadow);transform:translateY(-1px)}
+.summary-item.clickable:hover .sl{color:var(--cyan)}
+
+/* ===== Optimization Result Card ===== */
+.opt-card{
+  background:linear-gradient(135deg,#f0fdf4,#ecfeff);
+  border:2px solid var(--green);border-radius:var(--radius);
+  padding:1rem 1.2rem;margin-bottom:0.8rem;
+}
+@media(min-width:640px){.opt-card{padding:1.2rem 1.6rem}}
+.opt-card .opt-title{
+  font-size:0.78rem;font-weight:800;color:var(--green);
+  display:flex;align-items:center;gap:0.4rem;margin-bottom:0.6rem;
+}
+.opt-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;
+}
+@media(min-width:480px){.opt-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:768px){.opt-grid{grid-template-columns:repeat(4,1fr)}}
+.opt-item{text-align:center}
+.opt-item .ol{font-size:0.6rem;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.04em}
+.opt-item .ov{font-size:1rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--text)}
+@media(min-width:640px){.opt-item .ov{font-size:1.2rem}}
+.opt-item .ov.green{color:var(--green)}
+
+/* Utilization bar */
+.util-bar-wrap{margin-top:0.5rem}
+.util-row{
+  display:flex;align-items:center;gap:0.4rem;margin-bottom:0.25rem;
+}
+.util-row .ul{font-size:0.58rem;font-weight:600;color:var(--text-dim);width:36px;text-align:right;flex-shrink:0;text-transform:uppercase;letter-spacing:0.04em}
+.util-bar-bg{flex:1;height:7px;background:var(--bg);border-radius:4px;overflow:hidden}
+.util-bar-fill{height:100%;border-radius:4px;transition:width 0.6s var(--ease)}
+.util-bar-fill.green{background:linear-gradient(90deg,var(--green),#14b8a6)}
+.util-bar-fill.amber{background:linear-gradient(90deg,var(--amber),#f59e0b)}
+.util-bar-fill.cyan{background:linear-gradient(90deg,var(--cyan),var(--cyan-bright))}
+.util-row .ur{font-size:0.58rem;font-weight:700;color:var(--text);width:36px;flex-shrink:0;font-family:'JetBrains Mono',monospace}
+
+/* ===== Container Cards (Interactive) ===== */
+.container-grid{
+  display:grid;grid-template-columns:1fr;gap:0.5rem;margin-top:0.5rem;
+}
+@media(min-width:500px){.container-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:768px){.container-grid{grid-template-columns:repeat(3,1fr)}}
+
+.container-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-sm);overflow:hidden;
+  transition:all 0.25s;cursor:pointer;
+}
+.container-card:hover{border-color:var(--cyan);box-shadow:var(--shadow)}
+.container-card .cc-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.6rem 0.8rem;gap:0.4rem;
+}
+.container-card .cc-type{
+  font-size:0.72rem;font-weight:700;display:flex;align-items:center;gap:0.35rem;
+}
+.container-card .cc-type .ctype-dot{
+  width:10px;height:10px;border-radius:3px;flex-shrink:0;
+}
+.ctype-dot.t20{background:var(--cyan)}
+.ctype-dot.t40{background:var(--blue)}
+.ctype-dot.t40h{background:var(--green)}
+
+.container-card .cc-num{
+  font-size:0.62rem;font-weight:600;color:var(--text-muted);
+  background:var(--bg);padding:0.15rem 0.5rem;border-radius:50px;
+}
+.container-card .cc-bars{padding:0 0.8rem 0.5rem}
+.container-card .cc-bar-row{
+  display:flex;align-items:center;gap:0.3rem;margin-bottom:0.2rem;
+}
+.container-card .cc-bar-row .ccl{
+  font-size:0.55rem;font-weight:600;color:var(--text-muted);width:28px;flex-shrink:0;text-align:right;
+}
+.container-card .cc-bar-row .ccbg{flex:1;height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.container-card .cc-bar-row .ccbf{height:100%;border-radius:3px}
+.container-card .cc-bar-row .ccr{
+  font-size:0.55rem;font-weight:700;width:32px;flex-shrink:0;font-family:'JetBrains Mono',monospace;text-align:right;
+}
+.container-card .cc-products{
+  padding:0.4rem 0.8rem 0.5rem;border-top:1px solid var(--border);
+  font-size:0.6rem;color:var(--text-dim);
+  display:flex;flex-wrap:wrap;gap:0.3rem 0.6rem;
+}
+.container-card .cc-products span{white-space:nowrap}
+.container-card .cc-products .pk{font-weight:600;color:var(--text)}
+.container-card .cc-detail{
+  display:none;padding:0.5rem 0.8rem 0.6rem;
+  border-top:1px solid var(--border);background:var(--bg);
+}
+.container-card.expanded .cc-detail{display:block}
+.container-card .cc-expand{
+  text-align:center;padding:0.3rem;font-size:0.6rem;
+  color:var(--text-muted);border-top:1px solid var(--border);
+  transition:background 0.2s;
+}
+.container-card .cc-expand:hover{background:var(--bg)}
+.container-card.expanded .cc-expand .arr{transform:rotate(180deg)}
+.container-card .cc-expand .arr{display:inline-block;transition:transform 0.3s var(--ease)}
+
+.container-card .cc-detail-table{
+  width:100%;font-size:0.6rem;border-collapse:collapse;
+}
+.container-card .cc-detail-table th{
+  text-align:left;padding:0.2rem 0.3rem;font-size:0.55rem;font-weight:600;
+  color:var(--text-muted);border-bottom:1px solid var(--border);
+}
+.container-card .cc-detail-table td{
+  padding:0.2rem 0.3rem;border-bottom:1px solid var(--border);
+}
+.container-card .cc-empty{font-size:0.6rem;color:var(--text-muted);padding:0.3rem 0;text-align:center}
+
+/* ===== Comparison Table ===== */
+.comp-table{
+  width:100%;border-collapse:collapse;font-size:0.65rem;margin-top:0.4rem;
+}
+@media(min-width:640px){.comp-table{font-size:0.72rem}}
+.comp-table th{
+  text-align:center;padding:0.35rem 0.25rem;font-size:0.58rem;font-weight:700;
+  letter-spacing:0.04em;color:var(--text-dim);text-transform:uppercase;
+  background:var(--bg);border-bottom:2px solid var(--border);
+}
+.comp-table td{
+  padding:0.35rem 0.25rem;border-bottom:1px solid var(--border);
+  color:var(--text-dim);text-align:center;
+}
+.comp-table tr:hover td{background:var(--bg)}
+.comp-table .best-row td{background:var(--green-light);font-weight:700;color:var(--green)}
+.comp-table .best-row td:first-child::before{content:'★ ';font-size:0.65rem}
+.comp-table .mono{font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--text);font-weight:500}
+
+/* Formula Modal */
+.modal-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.45);z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(2px);padding:1rem;
+}
+.modal-box{
+  background:var(--bg-card);border-radius:var(--radius);
+  box-shadow:var(--shadow-lg);max-width:540px;width:100%;
+  padding:1.2rem;position:relative;max-height:90vh;overflow-y:auto;
+}
+@media(min-width:640px){.modal-box{padding:2rem}}
+.modal-close{
+  position:absolute;top:0.4rem;right:0.5rem;
+  background:none;border:none;font-size:1.2rem;
+  cursor:pointer;color:var(--text-muted);
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-close:hover{background:var(--bg);color:var(--text)}
+.modal-title{
+  font-size:0.9rem;font-weight:800;letter-spacing:-0.02em;
+  margin-bottom:1rem;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;
+}
+.modal-title .tag{
+  font-size:0.62rem;font-weight:700;padding:0.15rem 0.5rem;
+  border-radius:4px;background:var(--cyan-light);color:var(--cyan);
+}
+.formula-steps{list-style:none;padding:0}
+.formula-steps li{
+  padding:0.35rem 0.55rem;margin-bottom:0.25rem;
+  background:var(--bg);border-radius:var(--radius-xs);
+  font-family:'JetBrains Mono',monospace;font-size:0.68rem;
+  color:var(--text-dim);line-height:1.5;border-left:3px solid transparent;
+  word-break:break-all;
+}
+@media(min-width:640px){.formula-steps li{padding:0.45rem 0.75rem;margin-bottom:0.3rem;font-size:0.76rem}}
+.formula-steps li.final{
+  border-left-color:var(--cyan);background:var(--cyan-light);
+  color:var(--cyan);font-weight:700;font-size:0.78rem;
+}
+.formula-steps li.formula-step{
+  color:var(--text);font-weight:600;background:transparent;
+  font-size:0.7rem;padding-left:0;margin-bottom:0.04rem;
+}
+
+/* Mode Tabs */
+.mode-tabs{
+  display:flex;margin-bottom:1rem;
+  border:1px solid var(--border);border-radius:var(--radius-xs);overflow:hidden;
+}
+.mode-tab{
+  flex:1;padding:0.5rem 0.6rem;text-align:center;
+  background:var(--bg);border:none;cursor:pointer;
+  font-size:0.7rem;font-weight:600;color:var(--text-dim);
+  font-family:inherit;transition:all 0.25s;
+}
+@media(min-width:640px){.mode-tab{padding:0.55rem 0.8rem;font-size:0.76rem}}
+.mode-tab:first-child{border-right:1px solid var(--border)}
+.mode-tab.active{background:var(--cyan);color:#fff}
+
+/* Mixed items */
+.mixed-item{
+  display:grid;grid-template-columns:1fr 80px 28px;gap:0.3rem;
+  align-items:end;margin-bottom:0.4rem;
+  padding:0.4rem 0.45rem;background:var(--bg);
+  border-radius:var(--radius-xs);border:1px solid var(--border);
+}
+@media(min-width:480px){.mixed-item{grid-template-columns:1fr 100px 30px;gap:0.35rem;padding:0.45rem 0.55rem}}
+@media(min-width:640px){.mixed-item{grid-template-columns:1fr 110px 36px}}
+.mixed-item .form-section{margin-bottom:0}
+.btn-remove{
+  width:24px;height:24px;border-radius:50%;
+  border:1px solid var(--border);background:var(--bg-card);
+  color:var(--text-muted);cursor:pointer;font-size:0.85rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;margin-bottom:1px;flex-shrink:0;
+}
+@media(min-width:640px){.btn-remove{width:28px;height:28px;font-size:0.95rem}}
+.btn-remove:hover{background:#fee2e2;border-color:#fca5a5;color:#ef4444}
+.btn-add{
+  width:100%;padding:0.4rem;background:var(--bg);
+  border:1px dashed var(--border);border-radius:var(--radius-xs);
+  color:var(--text-dim);cursor:pointer;font-size:0.7rem;min-height:40px;
+  font-weight:600;font-family:inherit;transition:all 0.25s;
+  display:flex;align-items:center;justify-content:center;gap:0.25rem;
+}
+.btn-add:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-light)}
+
+.mixed-summary{margin-top:0.6rem}
+.mixed-product-card{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:0.5rem 0.7rem;margin-bottom:0.25rem;
+  display:flex;justify-content:space-between;align-items:center;gap:0.3rem;flex-wrap:wrap;
+}
+.mixed-product-card .mpn{font-weight:700;font-size:0.7rem}
+.mixed-product-card .mpq{font-size:0.6rem;color:var(--text-dim);white-space:nowrap}
+.mixed-product-card .mpp{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:0.75rem;color:var(--cyan);white-space:nowrap;cursor:pointer}
+.mixed-price-row{display:flex;flex-wrap:wrap;gap:0.25rem;margin-top:0.25rem;width:100%}
+.mpr-item{font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:600;padding:0.15rem 0.35rem;border-radius:3px;border:1px solid var(--border);cursor:pointer;white-space:nowrap;transition:all 0.15s}
+.mpr-item:hover{border-color:var(--border-hover);transform:translateY(-1px)}
+.mpr-item.active{border-color:var(--cyan);background:var(--cyan-light);color:var(--cyan)}
+.mpr-item.gold{border-color:rgba(176,136,58,0.3);background:var(--gold-light);color:var(--gold)}
+.mixed-total-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.3rem;margin-top:0.4rem}
+@media(min-width:500px){.mixed-total-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:700px){.mixed-total-grid{grid-template-columns:repeat(5,1fr)}}
+.mixed-total-item{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.35rem 0.5rem;display:flex;flex-direction:column;gap:0.1rem}
+.mixed-total-item span:first-child{font-size:0.55rem;font-weight:700;text-transform:uppercase;color:var(--text-dim);letter-spacing:0.04em}
+.mixed-total-item span:last-child{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:0.78rem}
+.mixed-total-item.accent{border-color:var(--cyan);background:var(--cyan-light)}
+.mixed-total-item.accent span:last-child{color:var(--cyan)}
+.mixed-total-item.gold{border-color:rgba(176,136,58,0.3);background:var(--gold-light)}
+.mixed-total-item.gold span:last-child{color:var(--gold)}
+
+.tip{font-size:0.62rem;color:var(--text-muted);margin-top:0.15rem;}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card,.opt-card{animation:fadeIn 0.4s var(--ease)}
+.container-card{animation:fadeIn 0.3s var(--ease)}
+
+@media print{
+  .header,.toggle-btn,.toggle-content,.summary-bar,.mode-tabs,.container-card .cc-expand{display:none!important}
+  .container-card .cc-detail{display:block!important}
+  body{background:#fff;font-size:12px}
+  .main{padding:0;max-width:100%}
+  .grid-2{grid-template-columns:1fr 1fr;gap:1rem}
+  .card{box-shadow:none;border:1px solid #ddd;break-inside:avoid;padding:1rem}
+  .container-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-logo">
+      <div class="mark">O</div>
+      ORIDINE 报价系统
+    </div>
+    <div class="header-actions">
+      <span class="header-info">汇率 USD/CNY <span id="hdrRate">6.7941</span></span>
+      <span class="header-badge">STAFF TOOL</span>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <h1 class="page-title">国际贸易报价计算</h1>
+  <p class="page-sub">起运港：上海 · FOB / CFR / CPT / CIF / CIP · 点击术语查看公式 · 智能装箱优化</p>
+
+  <!-- TOP summary bar: 5 price terms -->
+  <div class="summary-bar cols-5">
+    <div class="summary-item clickable" onclick="showFormula('FOB')"><div class="sl">FOB 单价</div><div class="sv" id="sumFOB">—</div></div>
+    <div class="summary-item clickable" onclick="showFormula('CFR')"><div class="sl">CFR 单价</div><div class="sv" id="sumCFR">—</div></div>
+    <div class="summary-item clickable" onclick="showFormula('CPT')"><div class="sl">CPT 单价</div><div class="sv" id="sumCPT">—</div></div>
+    <div class="summary-item clickable" onclick="showFormula('CIF')"><div class="sl">CIF ★ 单价</div><div class="sv" style="color:var(--cyan)" id="sumCIF">—</div></div>
+    <div class="summary-item clickable" onclick="showFormula('CIP')"><div class="sl">CIP 单价</div><div class="sv" style="color:var(--gold)" id="sumCIP">—</div></div>
+  </div>
+  <div class="summary-bar" style="grid-template-columns:repeat(3,1fr)">
+    <div class="summary-item"><div class="sl">总运费</div><div class="sv" id="sumFreight">—</div></div>
+    <div class="summary-item"><div class="sl">计费单位</div><div class="sv" id="sumBilling" style="font-size:0.8rem">—</div></div>
+    <div class="summary-item"><div class="sl">订单总价</div><div class="sv" style="color:var(--gold)" id="sumTotal">—</div></div>
+  </div>
+
+  <!-- Mode Tabs -->
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tabSingle" onclick="switchMode('single')">单一报价</button>
+    <button class="mode-tab" id="tabMixed" onclick="switchMode('mixed')">混合报价 · 装箱优化</button>
+  </div>
+
+  <div class="grid-2">
+    <!-- ===== LEFT PANEL ===== -->
+    <div>
+      <!-- SINGLE MODE INPUTS -->
+      <div id="singleMode">
+        <div class="card">
+          <div class="card-header"><h3><span class="dot green"></span> 报价参数输入</h3><span class="badge green">可编辑</span></div>
+          <div class="form-section">
+            <label class="form-label">产品型号</label>
+            <select class="form-select" id="selProduct">
+              <option value="H1">H1-ECO — 品质入门款 (FOB $55)</option>
+              <option value="H2">H2-PRO — 智能旗舰款 (FOB $75)</option>
+              <option value="H3" selected>H3-MAX — 全能生态款 (FOB $150)</option>
+            </select>
+          </div>
+          <div class="form-section">
+            <label class="form-label">订单数量（件）</label>
+            <input type="number" class="form-input" id="inpQty" value="500" min="1" step="1">
+          </div>
+          <div class="form-section"><label class="form-label">目的港</label><select class="form-select" id="selDest"></select></div>
+          <div class="form-section">
+            <label class="form-label">运输方式</label>
+            <select class="form-select" id="selMode">
+              <option value="LCL" selected>拼箱 (LCL) — 按计费吨计算</option>
+              <option value="FCL">整箱 (FCL) — 按集装箱计算</option>
+            </select>
+          </div>
+          <div class="form-section" id="fclGroup" style="display:none">
+            <label class="form-label">集装箱类型</label>
+            <select class="form-select" id="selContainer">
+              <option value="20GP">20英尺普箱 (20GP) — 28.28吨 / 33.2m³</option>
+              <option value="40GP">40英尺普箱 (40GP) — 26.73吨 / 67.7m³</option>
+              <option value="40HQ" selected>40英尺高箱 (40HQ) — 26.51吨 / 76.3m³</option>
+            </select>
+            <div class="tip" id="singleOptTip" style="display:none"></div>
+          </div>
+          <div class="form-section"><label class="form-label">基本险种</label>
+            <select class="form-select" id="selInsurance">
+              <option value="平安险">平安险 (F.P.A.)</option>
+              <option value="水渍险">水渍险 (W.P.A.)</option>
+              <option value="一切险" selected>一切险 (All Risks)</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-section">
+              <label class="form-label">附加险条数</label>
+              <input type="number" class="form-input" id="inpAddIns" value="3" min="0" max="20" step="1">
+              <div class="tip">费率 0.02% / 条</div>
+            </div>
+            <div class="form-section">
+              <label class="form-label">特殊险条数</label>
+              <input type="number" class="form-input" id="inpSpcIns" value="1" min="0" max="20" step="1">
+              <div class="tip">费率 0.04% / 条</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MIXED MODE INPUTS -->
+      <div id="mixedMode" style="display:none">
+        <div class="card">
+          <div class="card-header"><h3><span class="dot amber"></span> 混合报价 — 多产品组合</h3><span class="badge amber">多产品</span></div>
+          <div id="mixedItems"></div>
+          <button class="btn-add" onclick="addMixedItem()">＋ 添加产品</button>
+          <div style="margin-top:1rem">
+            <div class="form-section"><label class="form-label">目的港</label><select class="form-select" id="selDestM"></select></div>
+            <div class="form-row">
+              <div class="form-section"><label class="form-label">基本险种</label>
+                <select class="form-select" id="selInsuranceM">
+                  <option value="平安险">平安险 (F.P.A.)</option>
+                  <option value="水渍险">水渍险 (W.P.A.)</option>
+                  <option value="一切险" selected>一切险 (All Risks)</option>
+                </select>
+              </div>
+              <div class="form-section"><label class="form-label">装箱模式</label>
+                <select class="form-select" id="selPackMode">
+                  <option value="auto" selected>智能优化 — 空间利用率+成本最优</option>
+                  <option value="20GP">固定 20GP</option>
+                  <option value="40GP">固定 40GP</option>
+                  <option value="40HQ">固定 40HQ</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-section"><label class="form-label">附加险条数</label><input type="number" class="form-input" id="inpAddInsM" value="3" min="0" max="20" step="1"></div>
+              <div class="form-section"><label class="form-label">特殊险条数</label><input type="number" class="form-input" id="inpSpcInsM" value="1" min="0" max="20" step="1"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reference Data -->
+      <div class="toggle-section">
+        <button class="toggle-btn" onclick="var t=this;t.classList.toggle('open');document.getElementById('refContent').classList.toggle('open')">
+          运费与保险参考数据 <span class="arrow">▼</span>
+        </button>
+        <div class="toggle-content" id="refContent">
+          <div class="card" style="margin-top:0.6rem;padding:0.8rem">
+            <div class="subsection-title">海运运费参考（上海港起运）</div>
+            <div class="data-table-wrap"><table class="data-table"><thead><tr><th>大区</th><th>目的地</th><th>20GP</th><th>40GP/HQ</th><th>LCL/吨</th><th>航程</th></tr></thead><tbody id="refFreight"></tbody></table></div>
+            <div class="subsection-title" style="margin-top:0.8rem">保险费率参考</div>
+            <div class="data-table-wrap" style="max-height:200px"><table class="data-table"><thead><tr><th>区域</th><th>平安险</th><th>水渍险</th><th>一切险</th></tr></thead><tbody id="refInsurance"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RIGHT PANEL ===== -->
+    <div>
+      <!-- SINGLE RESULT -->
+      <div id="singleResult">
+        <div class="card">
+          <div class="card-header"><h3><span class="dot blue"></span> 计算结果</h3><span class="badge blue">自动计算</span></div>
+          <div class="subsection">
+            <div class="subsection-title">产品规格</div>
+            <div class="mini-row cols-5">
+              <div class="mini-card"><div class="mv" id="rWeight">—</div><div class="ml">重量 kg</div></div>
+              <div class="mini-card"><div class="mv" id="rVolume">—</div><div class="ml">体积 m³</div></div>
+              <div class="mini-card"><div class="mv" id="rLength">—</div><div class="ml">长 m</div></div>
+              <div class="mini-card"><div class="mv" id="rWidth">—</div><div class="ml">宽 m</div></div>
+              <div class="mini-card"><div class="mv" id="rHeight">—</div><div class="ml">高 m</div></div>
+              <div class="mini-card accent"><div class="mv" id="rFOB">—</div><div class="ml">FOB 单价</div></div>
+            </div>
+          </div>
+          <div class="subsection" id="fclCalc" style="display:none">
+            <div class="subsection-title">整箱装载计算</div>
+            <div class="mini-row cols-2">
+              <div class="mini-card"><div class="mv" id="rContLen">—</div><div class="ml">箱内长 m</div></div>
+              <div class="mini-card"><div class="mv" id="rContWid">—</div><div class="ml">箱内宽 m</div></div>
+              <div class="mini-card"><div class="mv" id="rContHei">—</div><div class="ml">箱内高 m</div></div>
+              <div class="mini-card"><div class="mv" id="rContLoad">—</div><div class="ml">有效载重 kg</div></div>
+            </div>
+            <div class="mini-row cols-2" style="margin-top:0.4rem">
+              <div class="mini-card"><div class="mv" id="rTheoryLoad">—</div><div class="ml">理论装载 件</div></div>
+              <div class="mini-card"><div class="mv" id="rWeightLimit">—</div><div class="ml">重量限制 件</div></div>
+              <div class="mini-card accent"><div class="mv" id="rActualLoad">—</div><div class="ml">单箱实装 件</div></div>
+              <div class="mini-card accent"><div class="mv" id="rContainers">—</div><div class="ml">所需箱数</div></div>
+            </div>
+            <div class="subsection" style="margin-top:0.6rem">
+              <div class="subsection-title">单箱利用率</div>
+              <div class="util-bar-wrap">
+                <div class="util-row"><span class="ul">体积</span><div class="util-bar-bg"><div class="util-bar-fill green" id="rVolUtil" style="width:0%"></div></div><span class="ur" id="rVolUtilTxt">0%</span></div>
+                <div class="util-row"><span class="ul">载重</span><div class="util-bar-bg"><div class="util-bar-fill amber" id="rWtUtil" style="width:0%"></div></div><span class="ur" id="rWtUtilTxt">0%</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="subsection" id="lclCalc">
+            <div class="subsection-title">拼箱计费</div>
+            <div class="mini-row cols-3">
+              <div class="mini-card"><div class="mv" id="rTotalWt">—</div><div class="ml">总重量 kg</div></div>
+              <div class="mini-card"><div class="mv" id="rTotalVol">—</div><div class="ml">总体积 m³</div></div>
+              <div class="mini-card"><div class="mv" id="rVolWt">—</div><div class="ml">体积重量 kg</div></div>
+              <div class="mini-card"><div class="mv" id="rChargeWt">—</div><div class="ml">计费重量 kg</div></div>
+              <div class="mini-card accent"><div class="mv" id="rBillingTon">—</div><div class="ml">计费吨</div></div>
+            </div>
+          </div>
+          <div class="subsection">
+            <div class="subsection-title">海运运费</div>
+            <div class="freight-card"><span class="fl">单位运费</span><span><span class="fv" id="rUnitFreight">—</span><span class="fu">USD</span></span></div>
+            <div class="freight-card"><span class="fl">附加费</span><span><span class="fv" id="rSurcharge">—</span><span class="fu">USD</span></span></div>
+            <div class="freight-card highlight"><span class="fl">总运费</span><span><span class="fv" id="rTotalFreight">—</span><span class="fu">USD</span></span></div>
+            <div style="font-size:0.68rem;color:var(--text-muted);margin-top:0.2rem" id="rFreightDetail"></div>
+          </div>
+          <div class="subsection">
+            <div class="subsection-title">保险费率</div>
+            <div class="mini-row cols-2">
+              <div class="mini-card"><div class="mv" id="rBasicRate">—</div><div class="ml">基本险费率</div></div>
+              <div class="mini-card"><div class="mv" id="rTotalRate">—</div><div class="ml">总保险费率</div></div>
+              <div class="mini-card" style="grid-column:span 2"><div class="mv" id="rInsRegion" style="font-size:0.78rem">—</div><div class="ml">保险区域</div></div>
+            </div>
+          </div>
+          <div class="subsection">
+            <div class="subsection-title">最终报价 · 单价 (USD) <span style="font-weight:400;font-size:0.6rem;color:var(--text-muted)">— 点击查看公式</span></div>
+            <div class="price-row">
+              <div class="price-item" onclick="showFormula('FOB')"><div class="pt">FOB</div><div class="pv" id="pFOB">—</div></div>
+              <div class="price-item" onclick="showFormula('CFR')"><div class="pt">CFR</div><div class="pv" id="pCFR">—</div></div>
+              <div class="price-item" onclick="showFormula('CPT')"><div class="pt">CPT</div><div class="pv" id="pCPT">—</div></div>
+              <div class="price-item active" onclick="showFormula('CIF')"><div class="pt">CIF ★</div><div class="pv" id="pCIF">—</div></div>
+              <div class="price-item gold" onclick="showFormula('CIP')"><div class="pt">CIP</div><div class="pv" id="pCIP">—</div></div>
+            </div>
+            <div class="price-total"><span class="tlabel">订单总价 · CIF × 数量</span><span class="tval" id="totalCIF">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MIXED RESULT -->
+      <div id="mixedResult" style="display:none">
+        <div class="card">
+          <div class="card-header"><h3><span class="dot amber"></span> 混合报价结果</h3><span class="badge amber">装箱优化</span></div>
+          <div id="mixedResultContent"><div class="empty-state"><div class="icon">📦</div>请添加产品并填写参数</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Formula Modal -->
+<div class="modal-overlay" id="formulaModal" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title"><span id="modalTermName" style="font-weight:800"></span><span class="tag" id="modalTermTag"></span></div>
+    <ul class="formula-steps" id="modalSteps"></ul>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  DATA
+// ============================================================
+var EX = 6.7941, INS_MARKUP = 0.1, ADD_INS = 0.0002, SPC_INS = 0.0004;
+
+var PRODUCTS = {
+  H1:{fob:55,  w:3,   v:0.035, l:0.28, wd:0.28, h:0.45},
+  H2:{fob:75,  w:3.8, v:0.044, l:0.29, wd:0.29, h:0.52},
+  H3:{fob:150, w:5.5, v:0.88,  l:0.35, wd:0.35, h:0.72}
+};
+
+var CONTAINERS = {
+  '20GP':{l:5.898,w:2.352,h:2.393,max:28280,vol:33.2},
+  '40GP':{l:12.032,w:2.352,h:2.393,max:26730,vol:67.7},
+  '40HQ':{l:12.032,w:2.352,h:2.698,max:26510,vol:76.3}
+};
+
+var SHIPPING = [
+  {rg:'东亚',cn:'韩国',pc:'釜山',pe:'Busan',f20:80,f40:160,f40h:160,sr20:1087,sr40:1657,sr40h:1657,su20:0,su40:0,su40h:0,lf:15,ls:159.991757554349,tr:3,ig:'港、澳、台、日本、韩国'},
+  {rg:'东亚',cn:'韩国',pc:'仁川',pe:'Incheon',f20:210,f40:420,f40h:420,sr20:1048,sr40:1604,sr40h:1604,su20:0,su40:0,su40h:0,lf:15,ls:154.251482904285,tr:3,ig:'港、澳、台、日本、韩国'},
+  {rg:'东亚',cn:'日本',pc:'东京',pe:'Tokyo',f20:80,f40:160,f40h:160,sr20:1013,sr40:1494,sr40h:1594,su20:60,su40:115,su40h:115,lf:15,ls:209.099954372176,tr:2,ig:'港、澳、台、日本、韩国'},
+  {rg:'东亚',cn:'日本',pc:'横滨',pe:'Yokohama',f20:80,f40:160,f40h:160,sr20:1013,sr40:1494,sr40h:1594,su20:60,su40:115,su40h:115,lf:15,ls:209.099954372176,tr:3,ig:'港、澳、台、日本、韩国'},
+  {rg:'东亚',cn:'日本',pc:'名古屋',pe:'Nagoya',f20:120,f40:240,f40h:240,sr20:1013,sr40:1494,sr40h:1594,su20:60,su40:115,su40h:115,lf:15,ls:209.099954372176,tr:2,ig:'港、澳、台、日本、韩国'},
+  {rg:'东亚',cn:'日本',pc:'神户',pe:'Kobe',f20:120,f40:240,f40h:240,sr20:1013,sr40:1494,sr40h:1594,su20:60,su40:115,su40h:115,lf:15,ls:209.099954372176,tr:3,ig:'港、澳、台、日本、韩国'},
+  {rg:'东亚',cn:'日本',pc:'大阪',pe:'Osaka',f20:80,f40:160,f40h:160,sr20:1013,sr40:1494,sr40h:1594,su20:60,su40:115,su40h:115,lf:15,ls:209.099954372176,tr:2,ig:'港、澳、台、日本、韩国'},
+  {rg:'东南亚',cn:'新加坡',pc:'新加坡',pe:'Singapore',f20:450,f40:900,f40h:900,sr20:317,sr40:437,sr40h:437,su20:620,su40:930,su40h:930,lf:25,ls:666.658129847956,tr:19,ig:'泰国、新加坡等其它国家'},
+  {rg:'东南亚',cn:'马来西亚',pc:'丹戎帕拉帕斯',pe:'Tanjung Pelepas',f20:525,f40:1050,f40h:1050,sr20:317,sr40:437,sr40h:437,su20:620,su40:930,su40h:930,lf:25,ls:666.658129847956,tr:11,ig:'泰国、新加坡等其它国家'},
+  {rg:'东南亚',cn:'越南',pc:'胡志明',pe:'Ho Chi Minh City',f20:430,f40:860,f40h:860,sr20:965,sr40:1430,sr40h:1430,su20:0,su40:0,su40h:0,lf:25,ls:142.035000956712,tr:5,ig:'泰国、新加坡等其它国家'},
+  {rg:'东南亚',cn:'越南',pc:'海防',pe:'Haiphong',f20:400,f40:800,f40h:800,sr20:965,sr40:1430,sr40h:1430,su20:0,su40:0,su40h:0,lf:25,ls:142.035000956712,tr:4,ig:'泰国、新加坡等其它国家'},
+  {rg:'东南亚',cn:'泰国',pc:'林查班',pe:'Laem Chabang',f20:415,f40:830,f40h:830,sr20:1037,sr40:1507,sr40h:1507,su20:0,su40:0,su40h:0,lf:25,ls:152.632431079908,tr:10,ig:'泰国、新加坡等其它国家'},
+  {rg:'东南亚',cn:'印度尼西亚',pc:'雅加达',pe:'Jakarta',f20:640,f40:900,f40h:900,sr20:1142,sr40:1632,sr40h:1632,su20:0,su40:0,su40h:0,lf:40,ls:168.087016676234,tr:12,ig:'泰国、新加坡等其它国家'},
+  {rg:'东南亚',cn:'印度尼西亚',pc:'泗水',pe:'Surabaya',f20:415,f40:820,f40h:820,sr20:1045,sr40:1549,sr40h:1549,su20:0,su40:0,su40h:0,lf:25,ls:153.809923315818,tr:16,ig:'泰国、新加坡等其它国家'},
+  {rg:'南亚',cn:'印度',pc:'蒙德拉',pe:'Mundra',f20:2245,f40:2290,f40h:2290,sr20:690,sr40:1060,sr40h:1060,su20:0,su40:0,su40h:0,lf:180,ls:101.558705347287,tr:23,ig:'尼泊尔、阿富汗、也门'},
+  {rg:'南亚',cn:'斯里兰卡',pc:'科伦坡',pe:'Colombo',f20:2945,f40:2990,f40h:2990,sr20:690,sr40:1060,sr40h:1060,su20:0,su40:0,su40h:0,lf:220,ls:101.558705347287,tr:15,ig:'尼泊尔、阿富汗、也门'},
+  {rg:'中东',cn:'阿联酋',pc:'迪拜',pe:'Dubai',f20:1000,f40:1500,f40h:1600,sr20:800,sr40:1000,sr40h:1000,su20:0,su40:0,su40h:0,lf:75,ls:117.749223591057,tr:12,ig:'约旦、黎巴嫩、巴林、阿拉伯、联合酋长国、菲律宾'},
+  {rg:'西欧',cn:'荷兰',pc:'鹿特丹',pe:'Rotterdam',f20:1795,f40:3090,f40h:3090,sr20:750,sr40:1090,sr40h:1090,su20:0,su40:0,su40h:0,lf:150,ls:110.389897116616,tr:52,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'西欧',cn:'比利时',pc:'安特卫普',pe:'Antwerp',f20:1795,f40:3090,f40h:3090,sr20:820,sr40:1220,sr40h:1220,su20:0,su40:0,su40h:0,lf:150,ls:120.692954180833,tr:50,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'西欧',cn:'德国',pc:'汉堡',pe:'Hamburg',f20:1141,f40:1727,f40h:1727,sr20:983,sr40:1460,sr40h:1460,su20:0,su40:0,su40h:0,lf:80,ls:144.684358487511,tr:49,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'西欧',cn:'德国',pc:'不来梅',pe:'Bremen/Bremerhaven',f20:1305,f40:2190,f40h:2190,sr20:1092,sr40:1684,sr40h:1734,su20:0,su40:0,su40h:0,lf:120,ls:160.727690201793,tr:42,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'西欧',cn:'法国',pc:'勒阿弗尔',pe:'Le Havre',f20:1795,f40:3090,f40h:3090,sr20:820,sr40:820,sr40h:1220,su20:0,su40:0,su40h:0,lf:150,ls:120.692954180833,tr:46,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'西欧',cn:'法国',pc:'马赛',pe:'Marseille-Fos',f20:2175,f40:3100,f40h:3100,sr20:963,sr40:1572,sr40h:1572,su20:12,su40:12,su40h:12,lf:190,ls:153.740627897735,tr:55,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'北欧',cn:'英国',pc:'伦敦',pe:'London',f20:2602,f40:4564,f40h:4564,sr20:983,sr40:1460,sr40h:1460,su20:0,su40:0,su40h:0,lf:200,ls:144.684358487511,tr:49,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'北欧',cn:'丹麦',pc:'哥本哈根-马尔默',pe:'Copenhagen-Malmö',f20:1630,f40:2695,f40h:2695,sr20:1038,sr40:1594,sr40h:1594,su20:90,su40:150,su40h:150,lf:145,ls:242.779617609396,tr:55,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'北欧',cn:'瑞典',pc:'哥德堡',pe:'Gothenburg',f20:1305,f40:2190,f40h:2190,sr20:1092,sr40:1684,sr40h:1734,su20:0,su40:0,su40h:0,lf:120,ls:160.727690201793,tr:47,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'南欧',cn:'西班牙',pc:'阿尔赫西拉斯',pe:'Algeciras',f20:1857,f40:2729,f40h:2729,sr20:883,sr40:1260,sr40h:1260,su20:0,su40:0,su40h:0,lf:150,ls:129.965705538629,tr:59,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'南欧',cn:'西班牙',pc:'瓦伦西亚',pe:'Valencia',f20:1933,f40:2866,f40h:2866,sr20:612,sr40:918,sr40h:918,su20:0,su40:0,su40h:0,lf:170,ls:90.0781560471586,tr:38,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'南欧',cn:'意大利',pc:'热那亚',pe:'Genoa',f20:1857,f40:2729,f40h:2729,sr20:883,sr40:1260,sr40h:1260,su20:0,su40:0,su40h:0,lf:150,ls:129.965705538629,tr:50,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'南欧',cn:'意大利',pc:'焦亚陶罗',pe:'Gioia Tauro',f20:2445,f40:3540,f40h:3540,sr20:1112,sr40:1644,sr40h:1644,su20:0,su40:0,su40h:0,lf:190,ls:163.671420791569,tr:47,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'东欧',cn:'希腊',pc:'比雷埃夫斯',pe:'Piraeus',f20:1975,f40:3100,f40h:3100,sr20:993,sr40:1444,sr40h:1444,su20:0,su40:0,su40h:0,lf:170,ls:146.156223782399,tr:46,ig:'阿尔巴尼亚、罗马尼亚、南斯拉夫、波兰、保加利亚、匈牙利、捷克、斯洛伐克、独联体国家'},
+  {rg:'东欧',cn:'俄罗斯',pc:'圣彼得堡',pe:'Saint Petersburg',f20:1975,f40:3100,f40h:3100,sr20:993,sr40:1444,sr40h:1444,su20:0,su40:0,su40h:0,lf:170,ls:146.156223782399,tr:46,ig:'阿尔巴尼亚、罗马尼亚、南斯拉夫、波兰、保加利亚、匈牙利、捷克、斯洛伐克、独联体国家'},
+  {rg:'东欧',cn:'俄罗斯',pc:'新罗西斯克',pe:'Novorossiysk',f20:1975,f40:3100,f40h:3100,sr20:993,sr40:1444,sr40h:1444,su20:0,su40:0,su40h:0,lf:170,ls:146.156223782399,tr:46,ig:'阿尔巴尼亚、罗马尼亚、南斯拉夫、波兰、保加利亚、匈牙利、捷克、斯洛伐克、独联体国家'},
+  {rg:'北美',cn:'美国',pc:'洛杉矶',pe:'Los Angeles',f20:10100,f40:20100,f40h:20100,sr20:322,sr40:442,sr40h:442,su20:620,su40:930,su40h:930,lf:650,ls:667.3940624954,tr:30,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'北美',cn:'美国',pc:'长滩',pe:'Long Beach',f20:10100,f40:20100,f40h:20100,sr20:322,sr40:442,sr40h:442,su20:620,su40:930,su40h:930,lf:650,ls:667.3940624954,tr:32,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'北美',cn:'美国',pc:'纽约-新泽西',pe:'New York and New Jersey',f20:10100,f40:20100,f40h:20100,sr20:322,sr40:442,sr40h:442,su20:620,su40:930,su40h:930,lf:650,ls:667.3940624954,tr:27,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'北美',cn:'美国',pc:'萨凡纳',pe:'Savannah',f20:10100,f40:20100,f40h:20100,sr20:322,sr40:442,sr40h:442,su20:620,su40:930,su40h:930,lf:650,ls:667.3940624954,tr:26,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'北美',cn:'美国',pc:'西雅图',pe:'Seattle & Tacoma',f20:10100,f40:20100,f40h:20100,sr20:322,sr40:442,sr40h:442,su20:620,su40:930,su40h:930,lf:650,ls:667.3940624954,tr:27,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'北美',cn:'加拿大',pc:'温哥华',pe:'Vancouver',f20:10100,f40:20100,f40h:20100,sr20:322,sr40:442,sr40h:442,su20:620,su40:930,su40h:930,lf:650,ls:667.3940624954,tr:null,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'北美',cn:'加拿大',pc:'蒙特利尔',pe:'Montreal',f20:10100,f40:20100,f40h:20100,sr20:322,sr40:442,sr40h:442,su20:620,su40:930,su40h:930,lf:650,ls:667.3940624954,tr:null,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'大洋洲',cn:'澳大利亚',pc:'墨尔本',pe:'Melbourne',f20:790,f40:1560,f40h:1560,sr20:1043,sr40:1489,sr40h:1609,su20:60,su40:115,su40h:115,lf:50,ls:213.51555025684,tr:14,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'大洋洲',cn:'澳大利亚',pc:'悉尼',pe:'Sydney',f20:790,f40:1560,f40h:1560,sr20:1043,sr40:1489,sr40h:1609,su20:60,su40:115,su40h:115,lf:50,ls:213.51555025684,tr:null,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'大洋洲',cn:'澳大利亚',pc:'布里斯班',pe:'Brisbane',f20:790,f40:1560,f40h:1560,sr20:1043,sr40:1489,sr40h:1609,su20:60,su40:115,su40h:115,lf:50,ls:213.51555025684,tr:null,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'大洋洲',cn:'新西兰',pc:'奥克兰',pe:'Auckland',f20:790,f40:1560,f40h:1560,sr20:1043,sr40:1489,sr40h:1609,su20:60,su40:115,su40h:115,lf:50,ls:213.51555025684,tr:null,ig:'欧洲、美国、加拿大、大洋洲'},
+  {rg:'拉美',cn:'巴拿马',pc:'巴拿马运河',pe:'Panama Canal',ls:0,ig:'中、南美洲'},
+  {rg:'拉美',cn:'墨西哥',pc:'曼萨尼约',pe:'Manzanillo',ls:0,ig:'中、南美洲'},
+  {rg:'拉美',cn:'巴西',pc:'桑托斯',pe:'Santos',ls:0,ig:'中、南美洲'},
+  {rg:'拉美',cn:'哥伦比亚',pc:'卡塔赫纳',pe:'Cartagena',ls:0,ig:'中、南美洲'},
+  {rg:'非洲',cn:'埃及',pc:'塞得',pe:'Said',ls:0,ig:'其它'},
+  {rg:'非洲',cn:'摩洛哥',pc:'丹吉尔地中海',pe:'Tanger Med',ls:0,ig:'其它'},
+  {rg:'非洲',cn:'南非',pc:'德班',pe:'Durban',ls:0,ig:'其它'},
+  {rg:'非洲',cn:'南非',pc:'开普敦',pe:'Cape Town',ls:0,ig:'其它'},
+  {rg:'非洲',cn:'尼日利亚',pc:'拉各斯',pe:'Lagos',ls:0,ig:'其它'}
+];
+
+var INSURANCE = {
+  '港、澳、台、日本、韩国':{平安险:0.0008,水渍险:0.0012,一切险:0.0025},
+  '约旦、黎巴嫩、巴林、阿拉伯、联合酋长国、菲律宾':{平安险:0.0015,水渍险:0.002,一切险:0.01},
+  '尼泊尔、阿富汗、也门':{平安险:0.0015,水渍险:0.002,一切险:0.015},
+  '泰国、新加坡等其它国家':{平安险:0.0015,水渍险:0.002,一切险:0.006},
+  '欧洲、美国、加拿大、大洋洲':{平安险:0.0015,水渍险:0.002,一切险:0.005},
+  '中、南美洲':{平安险:0.0015,水渍险:0.0025,一切险:0.015},
+  '阿尔巴尼亚、罗马尼亚、南斯拉夫、波兰、保加利亚、匈牙利、捷克、斯洛伐克、独联体国家':{平安险:0.0015,水渍险:0.0025,一切险:0.015},
+  '其它':{平安险:0.0015,水渍险:0.002,一切险:0.01}
+};
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function getRoute(pc){ for(var i=0;i<SHIPPING.length;i++) if(SHIPPING[i].pc===pc) return SHIPPING[i]; return null; }
+function getInsRate(ig,type){ var r=INSURANCE[ig]||INSURANCE['其它']; return r[type]!=null?r[type]:r['一切险']; }
+function fmt(n,d){ d=d==null?2:d; return Number(n).toFixed(d); }
+function fmtInt(n){ return Math.round(n).toLocaleString('en-US'); }
+
+function getOrientations(prod){
+  return [
+    [prod.l, prod.wd, prod.h],[prod.l, prod.h, prod.wd],
+    [prod.wd, prod.l, prod.h],[prod.wd, prod.h, prod.l],
+    [prod.h, prod.l, prod.wd],[prod.h, prod.wd, prod.l]
+  ];
+}
+
+function calcLoad(prod, cont){
+  var dims = getOrientations(prod), best = 0;
+  for(var i=0;i<dims.length;i++){
+    var d=dims[i], n=Math.floor(cont.l/d[0])*Math.floor(cont.w/d[1])*Math.floor(cont.h/d[2]);
+    if(n>best) best=n;
+  }
+  var byWt=Math.floor(cont.max/prod.w);
+  return {theo:best, wtLim:byWt, actual:Math.min(best, byWt)};
+}
+
+function cntCost(ck, route){
+  var k=ck;
+  var uf=k==='20GP'?(route.f20||0):k==='40GP'?(route.f40||0):(route.f40h||0);
+  var sr=k==='20GP'?(route.sr20||0):k==='40GP'?(route.sr40||0):(route.sr40h||0);
+  var su=k==='20GP'?(route.su20||0):k==='40GP'?(route.su40||0):(route.su40h||0);
+  return {unitFreight:uf, surcharge:sr/EX+su, total:uf+sr/EX+su};
+}
+
+// ============================================================
+//  3D BIN PACKING — Space-Tracking Algorithm
+// ============================================================
+
+function mergeSpaces(spaces){
+  if(spaces.length<=1) return spaces;
+  var m=spaces.slice(), changed=true;
+  while(changed){ changed=false;
+    for(var i=0;i<m.length&&!changed;i++){
+      for(var j=i+1;j<m.length&&!changed;j++){
+        var a=m[i], b=m[j];
+        // Same Y-Z, adjacent X
+        if(Math.abs(a.y-b.y)<0.001&&Math.abs(a.w-b.w)<0.001&&Math.abs(a.z-b.z)<0.001&&Math.abs(a.h-b.h)<0.001){
+          if(Math.abs(a.x+a.l-b.x)<0.001){m[i]={x:a.x,y:a.y,z:a.z,l:a.l+b.l,w:a.w,h:a.h};m.splice(j,1);changed=true;}
+          else if(Math.abs(b.x+b.l-a.x)<0.001){m[i]={x:b.x,y:a.y,z:a.z,l:a.l+b.l,w:a.w,h:a.h};m.splice(j,1);changed=true;}
+        }
+        // Same X-Z, adjacent Y
+        if(!changed&&Math.abs(a.x-b.x)<0.001&&Math.abs(a.l-b.l)<0.001&&Math.abs(a.z-b.z)<0.001&&Math.abs(a.h-b.h)<0.001){
+          if(Math.abs(a.y+a.w-b.y)<0.001){m[i]={x:a.x,y:a.y,z:a.z,l:a.l,w:a.w+b.w,h:a.h};m.splice(j,1);changed=true;}
+          else if(Math.abs(b.y+b.w-a.y)<0.001){m[i]={x:b.x,y:a.y,z:a.z,l:a.l,w:a.w+b.w,h:a.h};m.splice(j,1);changed=true;}
+        }
+        // Same X-Y, adjacent Z
+        if(!changed&&Math.abs(a.x-b.x)<0.001&&Math.abs(a.l-b.l)<0.001&&Math.abs(a.y-b.y)<0.001&&Math.abs(a.w-b.w)<0.001){
+          if(Math.abs(a.z+a.h-b.z)<0.001){m[i]={x:a.x,y:a.y,z:a.z,l:a.l,w:a.w,h:a.h+b.h};m.splice(j,1);changed=true;}
+          else if(Math.abs(b.z+b.h-a.z)<0.001){m[i]={x:b.x,y:a.y,z:a.z,l:a.l,w:a.w,h:a.h+b.h};m.splice(j,1);changed=true;}
+        }
+      }
+    }
+  }
+  return m;
+}
+
+function packSingleContainer(items, container){
+  var spaces=[{x:0,y:0,z:0,l:container.l,w:container.w,h:container.h}];
+  var loads={}, totalWt=0, totalVol=0, contVol=container.l*container.w*container.h;
+
+  var queue=items.filter(function(it){return it.qty>0;}).sort(function(a,b){return b.prod.v-a.prod.v;});
+  var progress=true;
+  while(progress&&queue.length>0&&spaces.length>0){ progress=false;
+    for(var qi=0;qi<queue.length;qi++){ var item=queue[qi]; if(item.qty<=0) continue;
+      var bestCount=0, bestSpaceIdx=-1, bestDims=null;
+      var oris=getOrientations(item.prod), maxWtRem=container.max-totalWt;
+      for(var oi=0;oi<oris.length;oi++){ var ol=oris[oi][0], ow=oris[oi][1], oh=oris[oi][2];
+        for(var si=0;si<spaces.length;si++){ var s=spaces[si];
+          var fitL=Math.floor(s.l/ol),fitW=Math.floor(s.w/ow),fitH=Math.floor(s.h/oh);
+          var fitTotal=fitL*fitW*fitH; if(fitTotal===0) continue;
+          var maxByWt=Math.floor(maxWtRem/item.prod.w);
+          var possible=Math.min(fitTotal,maxByWt,item.qty);
+          if(possible>bestCount){bestCount=possible;bestSpaceIdx=si;bestDims=[ol,ow,oh,fitL,fitW,fitH];}
+        }
+      }
+      if(bestCount>0&&bestSpaceIdx>=0){
+        var ol=bestDims[0],ow=bestDims[1],oh=bestDims[2],fitL=bestDims[3],fitW=bestDims[4],fitH=bestDims[5];
+        var s=spaces[bestSpaceIdx];
+        var perLayer=fitL*fitW, layersNeeded=Math.ceil(bestCount/perLayer);
+        var placed=Math.min(bestCount,layersNeeded*perLayer);
+        var usedL=fitL*ol, usedW=fitW*ow, usedH=layersNeeded*oh;
+        spaces.splice(bestSpaceIdx,1);
+        if(s.l-usedL>0.005) spaces.push({x:s.x+usedL,y:s.y,z:s.z,l:s.l-usedL,w:s.w,h:s.h});
+        if(s.w-usedW>0.005) spaces.push({x:s.x,y:s.y+usedW,z:s.z,l:usedL,w:s.w-usedW,h:s.h});
+        if(s.h-usedH>0.005) spaces.push({x:s.x,y:s.y,z:s.z+usedH,l:usedL,w:usedW,h:s.h-usedH});
+        spaces=spaces.filter(function(sp){return sp.l>0.01&&sp.w>0.01&&sp.h>0.01;});
+        spaces=mergeSpaces(spaces);
+        loads[item.prodKey]=(loads[item.prodKey]||0)+placed;
+        totalWt+=placed*item.prod.w; totalVol+=placed*item.prod.v;
+        item.qty-=placed; progress=true; break;
+      }
+    }
+    queue=queue.filter(function(it){return it.qty>0;}).sort(function(a,b){return b.prod.v-a.prod.v;});
+  }
+  var loadsArr=[];
+  for(var k in loads){if(loads[k]>0) loadsArr.push({prodKey:k,count:loads[k]});}
+  return {loads:loadsArr,usedVol:totalVol,usedWt:totalWt,
+    volUtil:contVol>0?totalVol/contVol:0, wtUtil:container.max>0?totalWt/container.max:0};
+}
+
+function packIntoContainers(items, contKey){
+  var container=CONTAINERS[contKey];
+  var remaining=items.map(function(it){return {prodKey:it.prodKey,prod:it.prod,qty:it.qty,fob:it.fob};});
+  var allContainers=[], maxIter=100;
+  while(maxIter-->0){
+    var hasAny=false;
+    for(var i=0;i<remaining.length;i++){if(remaining[i].qty>0){hasAny=true;break;}}
+    if(!hasAny) break;
+    var result=packSingleContainer(remaining,container);
+    if(result.loads.length===0) break;
+    result._ctype=contKey;
+    allContainers.push(result);
+    for(var li=0;li<result.loads.length;li++){ var load=result.loads[li];
+      for(var ri=0;ri<remaining.length;ri++){if(remaining[ri].prodKey===load.prodKey){remaining[ri].qty-=load.count;break;}}
+    }
+  }
+  return {containerType:contKey,containers:allContainers,numContainers:allContainers.length,
+    remaining:remaining.filter(function(r){return r.qty>0;})};
+}
+
+// ============================================================
+//  FULL HYBRID OPTIMIZATION — try all container types & combos
+// ============================================================
+function optimizeContainers(items, route){
+  var options=[];
+
+  function cloneItems(src){
+    return src.map(function(it){return {prodKey:it.prodKey,prod:it.prod,qty:it.qty,fob:it.fob};});
+  }
+
+  function buildOption(desc, containers, ctypeInfo){
+    var totalCost=0, totalVolUsed=0, totalWtUsed=0, totalVolCap=0, totalWtCap=0;
+    for(var i=0;i<containers.length;i++){ var c=containers[i];
+      var ck=c._ctype||ctypeInfo;
+      var cont=CONTAINERS[ck];
+      var cost=cntCost(ck,route);
+      totalCost+=cost.total;
+      totalVolUsed+=c.usedVol; totalWtUsed+=c.usedWt;
+      totalVolCap+=cont.l*cont.w*cont.h; totalWtCap+=cont.max;
+      if(!c._ctype) c._ctype=ck;
+    }
+    return {desc:desc,containerType:desc,numContainers:containers.length,
+      totalCost:totalCost,feasible:true,loads:containers,
+      totalVolUsed:totalVolUsed,totalWtUsed:totalWtUsed,
+      totalVolCap:totalVolCap,totalWtCap:totalWtCap,
+      volUtil:totalVolCap>0?totalVolUsed/totalVolCap:0,
+      wtUtil:totalWtCap>0?totalWtUsed/totalWtCap:0,hybrid:desc.indexOf('+')>=0};
+  }
+
+  // --- Single type ---
+  var ckeys=['20GP','40GP','40HQ'];
+  for(var ci=0;ci<ckeys.length;ci++){ var ck=ckeys[ci];
+    var cost=cntCost(ck,route);
+    if(cost.unitFreight===0&&cost.surcharge===0) continue;
+    var packed=packIntoContainers(cloneItems(items),ck);
+    if(packed.remaining.length===0){
+      for(var i=0;i<packed.containers.length;i++){packed.containers[i]._ctype=ck;packed.containers[i]._cnum=i+1;}
+      options.push(buildOption(packed.numContainers+'×'+ck,packed.containers,ck));
+    }
+  }
+
+  // --- Hybrid pairs ---
+  var pairs=[{L:'40HQ',S:'20GP'},{L:'40HQ',S:'40GP'},{L:'40GP',S:'20GP'}];
+  for(var pi=0;pi<pairs.length;pi++){ var L=pairs[pi].L, S=pairs[pi].S;
+    var costL=cntCost(L,route), costS=cntCost(S,route);
+    if(costL.unitFreight===0&&costL.surcharge===0) continue;
+    if(costS.unitFreight===0&&costS.surcharge===0) continue;
+
+    // Pack greedily into large containers
+    var rem=cloneItems(items);
+    var largeContainers=[];
+    for(var iter=0;iter<20;iter++){
+      if(!rem.some(function(x){return x.qty>0;})) break;
+      var res=packSingleContainer(rem,CONTAINERS[L]);
+      if(res.loads.length===0) break;
+      res._ctype=L; res._cnum=largeContainers.length+1;
+      largeContainers.push(res);
+      for(var li=0;li<res.loads.length;li++){ var ld=res.loads[li];
+        for(var ri=0;ri<rem.length;ri++){if(rem[ri].prodKey===ld.prodKey){rem[ri].qty-=ld.count;break;}}
+      }
+    }
+
+    if(!rem.some(function(x){return x.qty>0;})){
+      // All fit in large — already covered by single-type
+      continue;
+    }
+
+    // Pack remainder into small containers
+    var smallItems=rem.filter(function(x){return x.qty>0;}).map(function(x){
+      var prod=PRODUCTS[x.prodKey]; return {prodKey:x.prodKey,prod:prod,qty:x.qty,fob:prod.fob};
+    });
+    var smallPacked=packIntoContainers(smallItems,S);
+    if(smallPacked.remaining.length===0){
+      for(var i=0;i<smallPacked.containers.length;i++){smallPacked.containers[i]._ctype=S;smallPacked.containers[i]._cnum=i+1;}
+      var allC=largeContainers.concat(smallPacked.containers);
+      var desc=largeContainers.length+'×'+L+' + '+smallPacked.numContainers+'×'+S;
+      options.push(buildOption(desc,allC,null));
+    }
+  }
+
+  // Sort: cost first, then utilization (higher is better)
+  options.sort(function(a,b){
+    if(Math.abs(a.totalCost-b.totalCost)>0.01) return a.totalCost-b.totalCost;
+    return b.volUtil-a.volUtil;
+  });
+
+  return options;
+}
+
+// ============================================================
+//  FORMULA MODAL
+// ============================================================
+var _formulaCtx={};
+
+function showFormula(term){
+  var ctx=_formulaCtx; if(!ctx.fob){closeModal();return;}
+  var steps=[],tag='',name=term;
+  var fob=ctx.fob,fpu=ctx.freightPerUnit,cfr=ctx.cfr,cpt=ctx.cpt;
+  var tr=ctx.totalRate,mu=1+INS_MARKUP,cif=ctx.cif,cip=ctx.cip;
+
+  switch(term){
+    case 'FOB': tag='出厂价'; steps=[{cls:'formula-step',txt:'FOB = 产品出厂单价'},{txt:'FOB = $'+fmt(fob)},{cls:'final',txt:'FOB = $'+fmt(fob)+' / 件'}]; break;
+    case 'CFR': tag='成本+运费'; steps=[{cls:'formula-step',txt:'CFR = FOB + 单位运费'},{txt:'单位运费 = $'+fmt(fpu)},{txt:'CFR = $'+fmt(fob)+' + $'+fmt(fpu)+' = $'+fmt(cfr)},{cls:'final',txt:'CFR = $'+fmt(cfr)+' / 件'}]; break;
+    case 'CPT': tag='运费付至'; steps=[{cls:'formula-step',txt:'CPT = CFR（海运场景下等同于CFR）'},{txt:'CPT = $'+fmt(cpt)},{cls:'final',txt:'CPT = $'+fmt(cpt)+' / 件'}]; break;
+    case 'CIF': tag='成本+保险+运费'; steps=[{cls:'formula-step',txt:'CIF = CFR / (1 − 投保加成率 × 总保险费率)'},{txt:'CFR = $'+fmt(cfr)},{txt:'投保加成率 = '+(mu*100).toFixed(0)+'%'},{txt:'总保险费率 = '+fmt(tr*100,4)+'%'},{txt:'分母 = 1 − '+fmt(mu*tr,6)+' = '+fmt(1-mu*tr,6)},{txt:'CIF = $'+fmt(cfr)+' / '+fmt(1-mu*tr,6)+' = $'+fmt(cif)},{cls:'final',txt:'CIF = $'+fmt(cif)+' / 件'}]; break;
+    case 'CIP': tag='运费保险付至'; steps=[{cls:'formula-step',txt:'CIP = CPT × (1 + 投保加成率 × 总保险费率)'},{txt:'CPT = $'+fmt(cpt)},{txt:'投保加成率 = '+(mu*100).toFixed(0)+'%'},{txt:'因子 = 1 + '+fmt(mu*tr,6)+' = '+fmt(1+mu*tr,6)},{txt:'CIP = $'+fmt(cpt)+' × '+fmt(1+mu*tr,6)+' = $'+fmt(cip)},{cls:'final',txt:'CIP = $'+fmt(cip)+' / 件'}]; break;
+  }
+
+  document.getElementById('modalTermName').textContent=name;
+  document.getElementById('modalTermTag').textContent=tag;
+  var ul=document.getElementById('modalSteps'),html='';
+  steps.forEach(function(s){html+='<li'+(s.cls?' class="'+s.cls+'"':'')+'>'+s.txt+'</li>';});
+  ul.innerHTML=html;
+  document.getElementById('formulaModal').style.display='flex';
+}
+
+function closeModal(){document.getElementById('formulaModal').style.display='none';}
+
+// ============================================================
+//  MODE SWITCHING
+// ============================================================
+function switchMode(mode){
+  document.getElementById('tabSingle').classList.toggle('active',mode==='single');
+  document.getElementById('tabMixed').classList.toggle('active',mode==='mixed');
+  document.getElementById('singleMode').style.display=mode==='single'?'':'none';
+  document.getElementById('mixedMode').style.display=mode==='mixed'?'':'none';
+  document.getElementById('singleResult').style.display=mode==='single'?'':'none';
+  document.getElementById('mixedResult').style.display=mode==='mixed'?'':'none';
+  if(mode==='mixed') recalcMixed();
+  if(mode==='single') recalc();
+}
+
+// ============================================================
+//  MIXED STATE
+// ============================================================
+var mixedItems=[];
+
+function addMixedItem(key){
+  if(!key) key='H3'; if(mixedItems.length>=10) return;
+  mixedItems.push({product:key,qty:100});
+  renderMixedItems(); recalcMixed();
+}
+function removeMixedItem(idx){mixedItems.splice(idx,1);renderMixedItems();recalcMixed();}
+function updateMixedItem(idx,field,val){mixedItems[idx][field]=val;recalcMixed();}
+
+function renderMixedItems(){
+  var container=document.getElementById('mixedItems');
+  var opts='';
+  for(var k in PRODUCTS){var p=PRODUCTS[k];opts+='<option value="'+k+'">'+k+' — FOB $'+p.fob+' ('+p.w+'kg, '+p.v+'m³)</option>';}
+  var html='';
+  mixedItems.forEach(function(item,i){
+    var selOpts=opts.replace('value="'+item.product+'"','value="'+item.product+'" selected');
+    html+='<div class="mixed-item">';
+    html+='<div class="form-section"><select class="form-select" onchange="updateMixedItem('+i+',\'product\',this.value)">'+selOpts+'</select></div>';
+    html+='<div class="form-section"><input type="number" class="form-input" value="'+item.qty+'" min="1" step="1" onchange="updateMixedItem('+i+',\'qty\',parseInt(this.value)||1)"></div>';
+    html+='<button class="btn-remove" onclick="removeMixedItem('+i+')" title="移除">✕</button></div>';
+  });
+  container.innerHTML=html;
+}
+
+// ============================================================
+//  RENDER CONTAINER CARDS (Interactive)
+// ============================================================
+function ctypeColor(ck){if(ck==='20GP') return 't20'; if(ck==='40GP') return 't40'; return 't40h';}
+function ctypeName(ck){if(ck==='20GP') return '20英尺普箱'; if(ck==='40GP') return '40英尺普箱'; return '40英尺高箱';}
+function ctypeVol(ck){return CONTAINERS[ck].vol||(CONTAINERS[ck].l*CONTAINERS[ck].w*CONTAINERS[ck].h);}
+
+function renderContainerCards(containers){
+  var html='<div class="subsection-title" style="margin-top:0.6rem">📦 集装箱装箱可视化 <span style="font-weight:400;font-size:0.6rem;color:var(--text-muted)">— 点击卡片展开详情</span></div>';
+  html+='<div class="container-grid">';
+
+  for(var ci=0;ci<containers.length;ci++){
+    var c=containers[ci];
+    var ck=c._ctype||'?';
+    var cnum=c._cnum||(ci+1);
+    var volPct=Math.min(c.volUtil*100,100).toFixed(0);
+    var wtPct=Math.min(c.wtUtil*100,100).toFixed(0);
+    var cc=c.volUtil>0.85?'green':c.volUtil>0.5?'cyan':'amber';
+
+    html+='<div class="container-card" id="ccard'+ci+'" onclick="toggleCard('+ci+')">';
+    html+='<div class="cc-header">';
+    html+='<div class="cc-type"><span class="ctype-dot '+ctypeColor(ck)+'"></span>'+ck+' <span style="font-weight:400;color:var(--text-dim);font-size:0.65rem">#'+cnum+'</span></div>';
+    html+='<div class="cc-num">'+ctypeName(ck)+'</div>';
+    html+='</div>';
+
+    html+='<div class="cc-bars">';
+    html+='<div class="cc-bar-row"><span class="ccl">体积</span><div class="ccbg"><div class="ccbf" style="width:'+volPct+'%;background:var(--'+cc+')"></div></div><span class="ccr">'+volPct+'%</span></div>';
+    html+='<div class="cc-bar-row"><span class="ccl">载重</span><div class="ccbg"><div class="ccbf" style="width:'+wtPct+'%;background:var(--amber)"></div></div><span class="ccr">'+wtPct+'%</span></div>';
+    html+='</div>';
+
+    html+='<div class="cc-products">';
+    if(c.loads&&c.loads.length>0){
+      for(var li=0;li<c.loads.length;li++){
+        var l=c.loads[li], p=PRODUCTS[l.prodKey];
+        html+='<span><span class="pk">'+l.prodKey+'</span> ×'+l.count+'</span>';
+      }
+    } else { html+='<span style="color:var(--text-muted)">空箱</span>'; }
+    html+='</div>';
+
+    // Expandable detail
+    html+='<div class="cc-detail">';
+    if(c.loads&&c.loads.length>0){
+      html+='<table class="cc-detail-table"><thead><tr><th>产品</th><th>数量</th><th>单件体积</th><th>单件重量</th><th>小计体积</th><th>小计重量</th></tr></thead><tbody>';
+      for(var li2=0;li2<c.loads.length;li2++){
+        var ld2=c.loads[li2], pd2=PRODUCTS[ld2.prodKey];
+        html+='<tr><td>'+ld2.prodKey+'</td><td class="mono">'+ld2.count+'</td><td class="mono">'+pd2.v+'m³</td><td class="mono">'+pd2.w+'kg</td><td class="mono">'+fmt(pd2.v*ld2.count)+'m³</td><td class="mono">'+fmtInt(pd2.w*ld2.count)+'kg</td></tr>';
+      }
+      html+='</tbody></table>';
+      html+='<div style="margin-top:0.3rem;font-size:0.58rem;color:var(--text-dim)">';
+      html+='箱内尺寸: '+CONTAINERS[ck].l+'×'+CONTAINERS[ck].w+'×'+CONTAINERS[ck].h+' m | ';
+      html+='有效容积: '+fmt(ck==='20GP'?33.2:ck==='40GP'?67.7:76.3)+'m³ | ';
+      html+='已用体积: '+fmt(c.usedVol)+'m³ ('+volPct+'%) | ';
+      html+='已用载重: '+fmtInt(c.usedWt)+'kg ('+wtPct+'%)';
+      html+='</div>';
+    } else {
+      html+='<div class="cc-empty">该箱无装载数据</div>';
+    }
+    html+='</div>';
+
+    html+='<div class="cc-expand"><span class="arr">▼</span></div>';
+    html+='</div>';
+  }
+
+  html+='</div>';
+  return html;
+}
+
+function toggleCard(idx){
+  var card=document.getElementById('ccard'+idx);
+  if(card) card.classList.toggle('expanded');
+}
+
+// ============================================================
+//  MIXED CALCULATION
+// ============================================================
+function recalcMixed(){
+  if(mixedItems.length===0){
+    document.getElementById('mixedResultContent').innerHTML='<div class="empty-state"><div class="icon">📦</div>请添加产品并填写参数</div>';
+    clearMixedSummary(); return;
+  }
+
+  var pc=document.getElementById('selDestM').value;
+  var packMode=document.getElementById('selPackMode').value;
+  var insType=document.getElementById('selInsuranceM').value;
+  var addIns=parseInt(document.getElementById('inpAddInsM').value)||0;
+  var spcIns=parseInt(document.getElementById('inpSpcInsM').value)||0;
+  var route=getRoute(pc);
+  var ig=route.ig||'其它';
+  var basicRate=getInsRate(ig,insType);
+  var totalRate=basicRate+addIns*ADD_INS+spcIns*SPC_INS;
+
+  var items=mixedItems.map(function(m){
+    return {prodKey:m.product,prod:PRODUCTS[m.product],qty:m.qty,fob:PRODUCTS[m.product].fob};
+  });
+
+  var totalQty=0,totalFobValue=0;
+  items.forEach(function(it){totalQty+=it.qty;totalFobValue+=it.qty*it.fob;});
+
+  var html='',totalFreight=0,billingDesc='';
+  var hasFCL=(route.f20!=null)||(route.f40!=null)||(route.f40h!=null);
+  var best=null;
+
+  if(hasFCL&&packMode==='auto'){
+    // ---- AUTO: full optimization ----
+    var options=optimizeContainers(items,route);
+    best=options.length>0?options[0]:null;
+
+    if(best&&best.feasible){
+      totalFreight=best.totalCost;
+      billingDesc=best.desc;
+
+      // Recommendation card
+      html+='<div class="opt-card">';
+      html+='<div class="opt-title">✅ 最优装箱方案 — 空间利用率最高 + 运费最低</div>';
+      html+='<div class="opt-grid">';
+      html+='<div class="opt-item"><div class="ol">推荐组合</div><div class="ov green">'+best.desc+'</div></div>';
+      html+='<div class="opt-item"><div class="ol">总箱数</div><div class="ov">'+best.numContainers+'</div></div>';
+      html+='<div class="opt-item"><div class="ol">平均体积利用</div><div class="ov green">'+(best.volUtil*100).toFixed(0)+'%</div></div>';
+      html+='<div class="opt-item"><div class="ol">总运费</div><div class="ov green">$'+fmt(best.totalCost).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'</div></div>';
+      html+='</div>';
+      // Aggregate utilization bars
+      html+='<div class="util-bar-wrap">';
+      html+='<div class="util-row"><span class="ul">体积</span><div class="util-bar-bg"><div class="util-bar-fill green" style="width:'+Math.min((best.volUtil*100),100).toFixed(0)+'%"></div></div><span class="ur">'+(best.volUtil*100).toFixed(0)+'%</span></div>';
+      html+='<div class="util-row"><span class="ul">载重</span><div class="util-bar-bg"><div class="util-bar-fill amber" style="width:'+Math.min((best.wtUtil*100),100).toFixed(0)+'%"></div></div><span class="ur">'+(best.wtUtil*100).toFixed(0)+'%</span></div>';
+      html+='</div>';
+      html+='</div>';
+
+      // Comparison table
+      if(options.length>1){
+        html+='<div class="subsection-title" style="margin-top:0.6rem">📊 方案对比（按总运费排序）</div>';
+        html+='<div class="data-table-wrap" style="max-height:220px"><table class="comp-table"><thead><tr>';
+        html+='<th>排名</th><th>装箱组合</th><th>箱数</th><th>总运费</th><th>平均体积利用率</th><th>平均载重利用率</th></tr></thead><tbody>';
+        options.forEach(function(opt,oi){
+          var cls=oi===0?' class="best-row"':'';
+          html+='<tr'+cls+'><td>'+(oi===0?'★ 最优':'#'+(oi+1))+'</td>';
+          html+='<td>'+opt.desc+'</td>';
+          html+='<td class="mono">'+opt.numContainers+'</td>';
+          html+='<td class="mono">$'+fmt(opt.totalCost).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'</td>';
+          html+='<td class="mono">'+(opt.volUtil*100).toFixed(0)+'%</td>';
+          html+='<td class="mono">'+(opt.wtUtil*100).toFixed(0)+'%</td></tr>';
+        });
+        html+='</tbody></table></div>';
+      }
+
+      // Interactive container cards
+      if(best.loads&&best.loads.length>0){
+        html+=renderContainerCards(best.loads);
+      }
+    } else {
+      hasFCL=false;
+    }
+  } else if(hasFCL&&packMode!=='auto'){
+    // ---- Fixed container type ----
+    var ck=packMode;
+    var result=packIntoContainers(items,ck);
+    totalFreight=cntCost(ck,route).total*result.numContainers;
+    billingDesc=result.numContainers+'×'+ck;
+
+    for(var i=0;i<result.containers.length;i++){result.containers[i]._ctype=ck;result.containers[i]._cnum=i+1;}
+
+    html+='<div class="opt-card">';
+    html+='<div class="opt-title">📋 固定箱型 — '+ck+'</div>';
+    html+='<div class="opt-grid">';
+    html+='<div class="opt-item"><div class="ol">箱型</div><div class="ov">'+ck+'</div></div>';
+    html+='<div class="opt-item"><div class="ol">箱数</div><div class="ov">'+result.numContainers+'</div></div>';
+    html+='<div class="opt-item"><div class="ol">单箱成本</div><div class="ov">$'+fmt(cntCost(ck,route).total)+'</div></div>';
+    html+='<div class="opt-item"><div class="ol">总运费</div><div class="ov green">$'+fmt(totalFreight).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'</div></div>';
+    html+='</div>';
+    html+='</div>';
+
+    if(result.containers.length>0){
+      html+=renderContainerCards(result.containers);
+    }
+  }
+
+  if(!hasFCL){
+    // ---- LCL fallback ----
+    var tw=0,tv=0;
+    items.forEach(function(it){tw+=it.qty*it.prod.w;tv+=it.qty*it.prod.v;});
+    var vw=tv*1000,cw=Math.max(tw,vw),bt=cw/1000;
+    var uf=(route.lf||0),su=(route.ls||0)/EX;
+    totalFreight=uf*bt+su;
+    billingDesc='LCL '+fmt(bt)+' 计费吨';
+
+    html+='<div class="opt-card">';
+    html+='<div class="opt-title">📋 LCL 拼箱计费</div>';
+    html+='<div class="opt-grid">';
+    html+='<div class="opt-item"><div class="ol">总重量</div><div class="ov">'+fmtInt(tw)+' kg</div></div>';
+    html+='<div class="opt-item"><div class="ol">总体积</div><div class="ov">'+fmt(tv)+' m³</div></div>';
+    html+='<div class="opt-item"><div class="ol">计费吨</div><div class="ov green">'+fmt(bt)+'</div></div>';
+    html+='<div class="opt-item"><div class="ol">总运费</div><div class="ov green">$'+fmt(totalFreight).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'</div></div>';
+    html+='</div>';
+    html+='<div style="font-size:0.62rem;color:var(--text-muted);margin-top:0.3rem">该目的地无FCL运价或FCL装载不下，使用LCL拼箱计费</div>';
+    html+='</div>';
+  }
+
+  // Per-product pricing — all trade terms
+  html+='<div class="subsection-title" style="margin-top:0.8rem">各产品报价 <span style="font-weight:400;font-size:0.6rem;color:var(--text-muted)">— 点击术语查看公式</span></div>';
+  var grandTotalFOB=0,grandTotalCFR=0,grandTotalCPT=0,grandTotalCIF=0,grandTotalCIP=0;
+  items.forEach(function(it){
+    var weightRatio=totalFobValue>0?(it.qty*it.fob)/totalFobValue:1/items.length;
+    var allocatedFreight=totalFreight*weightRatio;
+    var freightPerUnit=allocatedFreight/it.qty;
+    var cfr=it.fob+freightPerUnit;
+    var cpt=cfr;
+    var cif=cfr/(1-(1+INS_MARKUP)*totalRate);
+    var cip=cpt*(1+(1+INS_MARKUP)*totalRate);
+    grandTotalFOB+=it.qty*it.fob;
+    grandTotalCFR+=it.qty*cfr;
+    grandTotalCPT+=it.qty*cpt;
+    grandTotalCIF+=it.qty*cif;
+    grandTotalCIP+=it.qty*cip;
+
+    html+='<div class="mixed-product-card">';
+    html+='<div><div class="mpn">'+it.prodKey+'</div><div class="mpq">×'+it.qty+' 件 · 运费分摊 '+fmt(weightRatio*100,1)+'%</div></div>';
+    html+='<div class="mixed-price-row">';
+    html+='<span class="mpr-item" onclick="showFormulaMixed(\''+it.prodKey+'\','+it.qty+','+it.fob+','+freightPerUnit+','+totalRate+',\'FOB\')" title="FOB公式">FOB $'+fmt(it.fob)+'</span>';
+    html+='<span class="mpr-item" onclick="showFormulaMixed(\''+it.prodKey+'\','+it.qty+','+it.fob+','+freightPerUnit+','+totalRate+',\'CFR\')" title="CFR公式">CFR $'+fmt(cfr)+'</span>';
+    html+='<span class="mpr-item" onclick="showFormulaMixed(\''+it.prodKey+'\','+it.qty+','+it.fob+','+freightPerUnit+','+totalRate+',\'CPT\')" title="CPT公式">CPT $'+fmt(cpt)+'</span>';
+    html+='<span class="mpr-item active" onclick="showFormulaMixed(\''+it.prodKey+'\','+it.qty+','+it.fob+','+freightPerUnit+','+totalRate+',\'CIF\')" title="CIF公式">CIF $'+fmt(cif)+'</span>';
+    html+='<span class="mpr-item gold" onclick="showFormulaMixed(\''+it.prodKey+'\','+it.qty+','+it.fob+','+freightPerUnit+','+totalRate+',\'CIP\')" title="CIP公式">CIP $'+fmt(cip)+'</span>';
+    html+='</div>';
+    html+='</div>';
+  });
+
+  // Order totals for all terms
+  html+='<div class="subsection-title" style="margin-top:0.8rem">订单总价</div>';
+  html+='<div class="mixed-total-grid">';
+  html+='<div class="mixed-total-item"><span>FOB 总价</span><span>$'+fmt(grandTotalFOB).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'</span></div>';
+  html+='<div class="mixed-total-item"><span>CFR 总价</span><span>$'+fmt(grandTotalCFR).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'</span></div>';
+  html+='<div class="mixed-total-item"><span>CPT 总价</span><span>$'+fmt(grandTotalCPT).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'</span></div>';
+  html+='<div class="mixed-total-item accent"><span>CIF ★ 总价</span><span>$'+fmt(grandTotalCIF).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'</span></div>';
+  html+='<div class="mixed-total-item gold"><span>CIP 总价</span><span>$'+fmt(grandTotalCIP).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'</span></div>';
+  html+='</div>';
+
+  // Update top summary — weighted average per term
+  var avgFOB=totalQty>0?grandTotalFOB/totalQty:0;
+  var avgCFR=totalQty>0?grandTotalCFR/totalQty:0;
+  var avgCPT=totalQty>0?grandTotalCPT/totalQty:0;
+  var avgCIF=totalQty>0?grandTotalCIF/totalQty:0;
+  var avgCIP=totalQty>0?grandTotalCIP/totalQty:0;
+  document.getElementById('sumFOB').textContent='~$'+fmt(avgFOB);
+  document.getElementById('sumCFR').textContent='~$'+fmt(avgCFR);
+  document.getElementById('sumCPT').textContent='~$'+fmt(avgCPT);
+  document.getElementById('sumCIF').textContent='~$'+fmt(avgCIF);
+  document.getElementById('sumCIP').textContent='~$'+fmt(avgCIP);
+  document.getElementById('sumFreight').textContent='$'+fmt(totalFreight).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  document.getElementById('sumBilling').textContent=billingDesc;
+  document.getElementById('sumTotal').textContent='$'+fmt(grandTotalCIF).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+
+  document.getElementById('mixedResultContent').innerHTML=html;
+  _formulaCtx={fob:avgFOB,freightPerUnit:totalFreight/totalQty,cfr:avgCFR,cpt:avgCPT,cif:avgCIF,cip:avgCIP,totalRate:totalRate,totalFreight:totalFreight,qty:totalQty};
+}
+
+function clearMixedSummary(){
+  var ids=['sumFOB','sumCFR','sumCPT','sumCIF','sumCIP','sumFreight','sumBilling','sumTotal'];
+  for(var i=0;i<ids.length;i++) document.getElementById(ids[i]).textContent='—';
+}
+
+function showFormulaMixed(key,qty,fob,fpu,rate,term){
+  var cfr=fob+fpu,cpt=cfr,mu=1+INS_MARKUP;
+  var cif=cfr/(1-mu*rate),cip=cpt*(1+mu*rate);
+  var steps=[],tag='',name=key+' '+term;
+
+  switch(term){
+    case 'FOB':
+      tag='出厂价';
+      steps=[{cls:'formula-step',txt:'FOB = 产品出厂单价'},{txt:'FOB = $'+fmt(fob)},{cls:'final',txt:'FOB = $'+fmt(fob)+' / 件'}];
+      break;
+    case 'CFR':
+      tag='成本+运费';
+      steps=[{cls:'formula-step',txt:'CFR = FOB + 分摊运费/件'},{txt:'FOB = $'+fmt(fob)},{txt:'分摊运费/件 = $'+fmt(fpu)},{txt:'CFR = $'+fmt(fob)+' + $'+fmt(fpu)+' = $'+fmt(cfr)},{cls:'final',txt:'CFR = $'+fmt(cfr)+' / 件'}];
+      break;
+    case 'CPT':
+      tag='运费付至';
+      steps=[{cls:'formula-step',txt:'CPT = CFR（海运场景下等同于CFR）'},{txt:'CFR = $'+fmt(cfr)},{txt:'CPT = $'+fmt(cpt)},{cls:'final',txt:'CPT = $'+fmt(cpt)+' / 件'}];
+      break;
+    case 'CIF':
+      tag='成本+保险+运费';
+      steps=[{cls:'formula-step',txt:'CIF = CFR / (1 − 投保加成率 × 总保险费率)'},{txt:'CFR = $'+fmt(cfr)},{txt:'投保加成率 = '+(mu*100).toFixed(0)+'%'},{txt:'总保险费率 = '+fmt(rate*100,4)+'%'},{txt:'分母 = 1 − '+fmt(mu*rate,6)+' = '+fmt(1-mu*rate,6)},{txt:'CIF = $'+fmt(cfr)+' / '+fmt(1-mu*rate,6)+' = $'+fmt(cif)},{cls:'final',txt:'CIF = $'+fmt(cif)+' / 件'}];
+      break;
+    case 'CIP':
+      tag='运费保险付至';
+      steps=[{cls:'formula-step',txt:'CIP = CPT × (1 + 投保加成率 × 总保险费率)'},{txt:'CPT = $'+fmt(cpt)},{txt:'投保加成率 = '+(mu*100).toFixed(0)+'%'},{txt:'总保险费率 = '+fmt(rate*100,4)+'%'},{txt:'因子 = 1 + '+fmt(mu*rate,6)+' = '+fmt(1+mu*rate,6)},{txt:'CIP = $'+fmt(cpt)+' × '+fmt(1+mu*rate,6)+' = $'+fmt(cip)},{cls:'final',txt:'CIP = $'+fmt(cip)+' / 件'}];
+      break;
+  }
+
+  document.getElementById('modalTermName').textContent=name;
+  document.getElementById('modalTermTag').textContent='混合报价 · '+tag+' · ×'+qty+'件';
+  var html='';
+  steps.forEach(function(s){html+='<li'+(s.cls?' class="'+s.cls+'"':'')+'>'+s.txt+'</li>';});
+  document.getElementById('modalSteps').innerHTML=html;
+  document.getElementById('formulaModal').style.display='flex';
+}
+
+// ============================================================
+//  SINGLE QUOTE
+// ============================================================
+function recalc(){
+  var prod=PRODUCTS[document.getElementById('selProduct').value];
+  var qty=parseInt(document.getElementById('inpQty').value)||1;
+  var pc=document.getElementById('selDest').value;
+  var mode=document.getElementById('selMode').value;
+  var contKey=document.getElementById('selContainer').value;
+  var insType=document.getElementById('selInsurance').value;
+  var addIns=parseInt(document.getElementById('inpAddIns').value)||0;
+  var spcIns=parseInt(document.getElementById('inpSpcIns').value)||0;
+
+  var route=getRoute(pc),cont=CONTAINERS[contKey],isFCL=mode==='FCL';
+
+  document.getElementById('rWeight').textContent=prod.w;
+  document.getElementById('rVolume').textContent=prod.v;
+  document.getElementById('rLength').textContent=prod.l;
+  document.getElementById('rWidth').textContent=prod.wd;
+  document.getElementById('rHeight').textContent=prod.h;
+  document.getElementById('rFOB').textContent='$'+prod.fob;
+  document.getElementById('fclCalc').style.display=isFCL?'':'none';
+  document.getElementById('lclCalc').style.display=isFCL?'none':'';
+  document.getElementById('fclGroup').style.display=isFCL?'':'none';
+
+  var unitFreight,surchargeUSD,totalFreight,billingDesc;
+
+  if(isFCL){
+    document.getElementById('rContLen').textContent=cont.l;
+    document.getElementById('rContWid').textContent=cont.w;
+    document.getElementById('rContHei').textContent=cont.h;
+    document.getElementById('rContLoad').textContent=fmtInt(cont.max);
+
+    var load=calcLoad(prod,cont);
+    document.getElementById('rTheoryLoad').textContent=load.theo;
+    document.getElementById('rWeightLimit').textContent=load.wtLim;
+    document.getElementById('rActualLoad').textContent=load.actual;
+    var containers=Math.ceil(qty/load.actual);
+    document.getElementById('rContainers').textContent=containers;
+
+    var totalVolUsed=qty*prod.v,totalVolCap=cont.l*cont.w*cont.h*containers;
+    var totalWtUsed=qty*prod.w,totalWtCap=cont.max*containers;
+    var volUtil=totalVolCap>0?totalVolUsed/totalVolCap:0;
+    var wtUtil=totalWtCap>0?totalWtUsed/totalWtCap:0;
+    document.getElementById('rVolUtil').style.width=(volUtil*100).toFixed(0)+'%';
+    document.getElementById('rVolUtilTxt').textContent=(volUtil*100).toFixed(0)+'%';
+    document.getElementById('rWtUtil').style.width=(wtUtil*100).toFixed(0)+'%';
+    document.getElementById('rWtUtilTxt').textContent=(wtUtil*100).toFixed(0)+'%';
+
+    var cost=cntCost(contKey,route);
+    unitFreight=cost.unitFreight;surchargeUSD=cost.surcharge;
+    totalFreight=cost.total*containers;
+    billingDesc='FCL '+contKey+' × '+containers+'箱';
+
+    // Suggest cheaper alternative
+    var alts=[],ckeys=['20GP','40GP','40HQ'];
+    for(var ci=0;ci<ckeys.length;ci++){var ck=ckeys[ci];if(ck===contKey) continue;
+      var ac=cntCost(ck,route);if(ac.unitFreight===0&&ac.surcharge===0) continue;
+      var al=calcLoad(prod,CONTAINERS[ck]),acn=Math.ceil(qty/al.actual);
+      alts.push({ck:ck,containers:acn,totalCost:ac.total*acn});
+    }
+    alts.sort(function(a,b){return a.totalCost-b.totalCost;});
+    var tipHtml='';
+    for(var ai=0;ai<alts.length;ai++){
+      var saving=totalFreight-alts[ai].totalCost;
+      if(saving>0.01) tipHtml+='💡 <b>'+alts[ai].ck+'</b> × '+alts[ai].containers+'箱 可节省 <b>$'+fmt(saving)+'</b> ';
+    }
+    document.getElementById('singleOptTip').innerHTML=tipHtml;
+    document.getElementById('singleOptTip').style.display=tipHtml?'':'none';
+
+    document.getElementById('rFreightDetail').textContent=route.pc+' ('+route.pe+') · FCL '+contKey+' × '+containers+'箱 · '+(route.tr?'航程 '+route.tr+' 天':'');
+  } else {
+    var tw=qty*prod.w,tv=qty*prod.v,vw=tv*1000,cw=Math.max(tw,vw),bt=cw/1000;
+    document.getElementById('rTotalWt').textContent=fmtInt(tw);
+    document.getElementById('rTotalVol').textContent=fmt(tv);
+    document.getElementById('rVolWt').textContent=fmtInt(vw);
+    document.getElementById('rChargeWt').textContent=fmtInt(cw);
+    document.getElementById('rBillingTon').textContent=fmt(bt);
+    unitFreight=route.lf||0;surchargeUSD=(route.ls||0)/EX;
+    totalFreight=unitFreight*bt+surchargeUSD;
+    billingDesc='LCL '+fmt(bt)+' 计费吨';
+    document.getElementById('rFreightDetail').textContent=route.pc+' ('+route.pe+') · LCL · '+(route.tr?'航程 '+route.tr+' 天':'');
+    document.getElementById('singleOptTip').style.display='none';
+  }
+
+  document.getElementById('rUnitFreight').textContent='$'+fmt(unitFreight);
+  document.getElementById('rSurcharge').textContent='$'+fmt(surchargeUSD);
+  document.getElementById('rTotalFreight').textContent='$'+fmt(totalFreight).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+
+  var ig=route.ig||'其它';
+  var basicRate=getInsRate(ig,insType);
+  var totalRate=basicRate+addIns*ADD_INS+spcIns*SPC_INS;
+  document.getElementById('rBasicRate').textContent=fmt(basicRate,4);
+  document.getElementById('rTotalRate').textContent=fmt(totalRate,4);
+  document.getElementById('rInsRegion').textContent=ig;
+
+  var fob=prod.fob,fpu=totalFreight/qty,cfr=fob+fpu,cpt=cfr;
+  var cif=cfr/(1-(1+INS_MARKUP)*totalRate);
+  var cip=cpt*(1+(1+INS_MARKUP)*totalRate);
+
+  document.getElementById('pFOB').textContent='$'+fmt(fob);
+  document.getElementById('pCFR').textContent='$'+fmt(cfr);
+  document.getElementById('pCPT').textContent='$'+fmt(cpt);
+  document.getElementById('pCIF').textContent='$'+fmt(cif);
+  document.getElementById('pCIP').textContent='$'+fmt(cip);
+  document.getElementById('totalCIF').textContent='$'+fmt(cif*qty).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+
+  document.getElementById('sumFOB').textContent='$'+fmt(fob);
+  document.getElementById('sumCFR').textContent='$'+fmt(cfr);
+  document.getElementById('sumCPT').textContent='$'+fmt(cpt);
+  document.getElementById('sumCIF').textContent='$'+fmt(cif);
+  document.getElementById('sumCIP').textContent='$'+fmt(cip);
+  document.getElementById('sumFreight').textContent='$'+fmt(totalFreight).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  document.getElementById('sumBilling').textContent=billingDesc;
+  document.getElementById('sumTotal').textContent='$'+fmt(cif*qty).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  document.getElementById('hdrRate').textContent=fmt(EX);
+
+  _formulaCtx={fob:fob,freightPerUnit:fpu,cfr:cfr,cpt:cpt,cif:cif,cip:cip,totalRate:totalRate,totalFreight:totalFreight,qty:qty};
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+(function(){
+  function buildDestOptions(){
+    var regions={},html='';
+    SHIPPING.forEach(function(r){
+      if(!regions[r.rg]) regions[r.rg]=[];
+      regions[r.rg].push(r);
+    });
+    for(var rg in regions){
+      html+='<optgroup label="'+rg+'">';
+      regions[rg].forEach(function(r){html+='<option value="'+r.pc+'">'+r.pc+' ('+r.pe+') — '+r.cn+'</option>';});
+      html+='</optgroup>';
+    }
+    return html;
+  }
+  var dh=buildDestOptions();
+  document.getElementById('selDest').innerHTML=dh; document.getElementById('selDest').value='东京';
+  document.getElementById('selDestM').innerHTML=dh; document.getElementById('selDestM').value='东京';
+
+  var ftHtml='';
+  SHIPPING.forEach(function(r){
+    ftHtml+='<tr><td>'+r.rg+'</td><td>'+r.pc+' ('+r.pe+')</td>';
+    ftHtml+='<td class="mono">'+(r.f20!=null?'$'+r.f20:'—')+'</td>';
+    ftHtml+='<td class="mono">'+(r.f40!=null?'$'+r.f40+'/$'+(r.f40h||'—'):'—')+'</td>';
+    ftHtml+='<td class="mono">'+(r.lf!=null?'$'+r.lf+'/吨':'—')+'</td>';
+    ftHtml+='<td>'+(r.tr||'—')+'</td></tr>';
+  });
+  document.getElementById('refFreight').innerHTML=ftHtml;
+
+  var insHtml='';
+  for(var k in INSURANCE){var v=INSURANCE[k];insHtml+='<tr><td>'+k+'</td><td class="mono">'+fmt(v['平安险'],4)+'</td><td class="mono">'+fmt(v['水渍险'],4)+'</td><td class="mono">'+fmt(v['一切险'],4)+'</td></tr>';}
+  document.getElementById('refInsurance').innerHTML=insHtml;
+
+  ['selProduct','inpQty','selDest','selMode','selContainer','selInsurance','inpAddIns','inpSpcIns'].forEach(function(id){
+    var el=document.getElementById(id);el.addEventListener('change',recalc);el.addEventListener('input',recalc);
+  });
+  document.getElementById('selMode').addEventListener('change',function(){
+    document.getElementById('fclGroup').style.display=this.value==='FCL'?'':'none';recalc();
+  });
+
+  ['selDestM','selPackMode','selInsuranceM','inpAddInsM','inpSpcInsM'].forEach(function(id){
+    var el=document.getElementById(id);el.addEventListener('change',recalcMixed);el.addEventListener('input',recalcMixed);
+  });
+
+  addMixedItem('H3');addMixedItem('H1');
+  mixedItems[0].qty=100;mixedItems[1].qty=200;
+  renderMixedItems();recalc();
+})();
+</script>
+</body>
+</html>
